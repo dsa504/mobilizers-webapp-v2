@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    
+    <!-- Vendor Scripts -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.min.js"
+      integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+      crossorigin="anonymous"></script>
+
+    <!-- Styles -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+    <link rel="stylesheet" href="https://unpkg.com/vue-material@beta/dist/vue-material.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/vue-material@beta/dist/theme/default.css">
+
+    <?!= HtmlService.createHtmlOutputFromFile('Stylesheet').getContent(); ?>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body>
+  
+<div id="app">
+  <md-dialog :md-active.sync="formOptions.showLogin" :md-close-on-esc="false" :md-click-outside-to-close="false">
+    <md-dialog-title>Please Log In</md-dialog-title>
+    <md-dialog-content>
+    <md-field>
+        <label>Password</label>
+        <md-input v-model="pw" type="password"></md-input>
+    </md-field>
+    </md-dialog-content>
+    <!--
+    <div style="text-align:right">
+      <md-button v-on:click="attemptLogin" class="md-raised md-accent">Submit</md-button>
+    </div>
+    -->
+    <md-dialog-actions>
+      <md-button  @click="attemptLogin">Login</md-button>
+    </md-dialog-actions>
+  </md-dialog>
+  
+  <div class="md-layout md-alignment-top-center">
+    <div class="md-layout-item">
+  <!--<div class="form-wrapper" id="form-wrapper">-->
+  
+    
+      <md-card class="md-accent">
+        <md-card-header>
+          <div class="md-title"><b>DSA504</b>  Mobilizer Progress Tracker</div>
+          <div class="md-subhead">Version 2.0</div>
+        </md-card-header>
+      </md-card>
+      
+      <md-card>
+        <md-card-content style="padding-bottom:0px;">
+          <div>
+            Please select your name to get started!
+          </div>
+       
+          <md-field>
+            <label for="mobilizers">Mobilizer</label>
+            <md-select name="mobilizers" id="mobilizers" v-model="activeMobilizer">  
+              <md-option v-for="mob in mobilizers" :key="mob" :value="mob">
+                {{ mob }}
+              </md-option>
+            </md-select>
+          </md-field>
+         </md-card-content>
+        </md-card>
+       
+         <md-card v-if="activeMobilizer">
+          <md-card-content style="padding-bottom:20px;padding-top:0px;">
+            <md-field>
+                <label for="progMembers">Program Member</label>
+                <md-select id="progMembers" name="progMembers" v-model="activeProgramMember">
+                   <md-option v-for="pm in programMembers" :key="pm.name" :value="pm.id">
+                      {{ pm.name }}
+                   </md-option>
+                </md-select>
+            </md-field>
+           
+         <md-table id="progressTracker" v-if="activeMobilizer" v-model="programMembers" @md-selected="onTableSelect">
+           <md-table-row  slot="md-table-row" slot-scope="{ item }" md-selectable="single" class="md-primary">
+             <md-table-cell md-label="Program Member" class="firstCol">{{ item.name }}</md-table-cell>
+             <md-table-cell md-label="Text?">
+               <md-icon v-if="item.textSent" style="color:green">check_circle_outline</md-icon>
+               <md-icon v-if="!item.textSent" style="opacity:.3">highlight_off</md-icon>
+             </md-table-cell>
+             <md-table-cell md-label="Call?">
+               <md-icon v-if="item.callAttempted" style="color:green">check_circle_outline</md-icon>
+               <md-icon v-if="!item.callAttempted" style="opacity:.3">highlight_off</md-icon>
+             </md-table-cell>
+             <md-table-cell md-label="Followup?">
+               <md-icon v-if="item.sentFollowup" style="color:green">check_circle_outline</md-icon>
+               <md-icon v-if="!item.sentFollowup"style="opacity:.3">highlight_off</md-icon>
+             </md-table-cell>
+             <md-table-cell md-label="Meetup?">
+               <md-icon v-if="item.attended" style="color:green">check_circle_outline</md-icon>
+               <md-icon v-if="!item.attended" style="opacity:.3">highlight_off</md-icon>
+             </md-table-cell>
+           </md-table-row>
+         </md-table>
+      </md-card-content>
+         </md-card>
+       
+    
+
+    <md-card class="login-card" v-if="activeProgramMember">
+      <md-toolbar :md-elevation="1">
+          <md-icon>face</md-icon>
+          <span class="md-title">Program Member Details</span>
+      </md-toolbar>
+      <md-card-content>
+        <div class="pm_details">
+        
+          <ul class="mdl-list">
+              <li><b>Name: {{ activeProgramMemberData.name }}</b></li>
+              <li>Phone: {{ activeProgramMemberData.phone }}</li>
+              <li>Email: {{ activeProgramMemberData.email }}</li>
+          </ul>
+          <ul class="mdl-list">
+              <li>Assigned Date: {{ activeProgramMemberData.assigned }}</li>
+              <li>Due Date: <b>{{ activeProgramMemberData.due }}</b></li>
+              <li>Status: {{ activeProgramMemberData.status }}</li>
+          </ul>
+          </div>
+        </md-card-content>
+    </md-card>
+
+    <form id="intake_form" v-bind:class="{ active: (this.activeProgramMember !== '') }" v-if="activeProgramMember">
+    
+      <md-card class="step_box">
+        <md-toolbar :md-elevation="1">
+          <span class="md-title">Initial Text</span>
+        </md-toolbar>
+        <md-card-content>
+            <div class="speech-bubble-text">
+            "Hi <b>{{ activeProgramMemberData.name }}</b>! This is <b>{{ formData[this.activeProgramMember][columnMap["mob_name"].id] }}</b> from New Orleans DSA. We got your info from our site and we'd love to talk to you. Do you have time today or soon for a phone call?"
+            </div>
+            
+            
+            <div class="checkbox_wrap">
+                <md-checkbox v-model="formData[activeProgramMember][columnMap['initial_text_sent'].id]" :value="true">Text Sent?</md-checkbox>
+            </div>
+            
+            
+            <div class="response_text">Program Member Response:</div>
+            <md-field>
+                <md-select v-model="formData[activeProgramMember][columnMap['initial_text_response'].id]">
+                    <md-option v-for="initial_text_opt in formOptions.initialTextResponses" :key="initial_text_opt" :value="initial_text_opt">{{ initial_text_opt }}</md-option>
+                </md-select>
+             </md-field>
+             </md-card-content>
+        </md-card>
+ 
+    <md-card class="step_box" v-if="formOptions.showSteps">
+        <md-toolbar :md-elevation="1">
+          <span class="md-title">Intake Call</span>
+        </md-toolbar>
+        <md-card-content>
+        
+        <h3>“Hi, is this <b>{{ activeProgramMemberData.name }}</b>?”</h3>
+        
+        <div class="response_text">Program Member Response:</div>
+        
+        <md-radio v-model="formData[activeProgramMember][columnMap['call_made'].id]" value="Yup!">Yup!</md-radio>
+        <md-radio v-model="formData[activeProgramMember][columnMap['call_made'].id]" value="No Answer/Left Message">No Answer/Left Message</md-radio>
+        
+        </md-card-content>
+         <md-divider></md-divider>
+         <md-card-content>
+        
+        <h3>Introduce yourself</h3>
+        <div class="speech-bubble">
+        “This is <b>{{ formData[this.activeProgramMember][columnMap["mob_name"].id] }}</b> from the DSA New Orleans mobilizers program- I’ve been assigned to you though the program, to act as a point of contact for you to DSA New Orleans, to answer any questions you might have, and help you get involved. First though I’ve just got a couple quick questions, if that’s cool?”
+        </div>
+        
+         </md-card-content>
+         <md-divider></md-divider>
+         <md-card-content>
+    
+        <h3>Identify Pronoun &amp; Occupation</h3>
+        <div class="speech-bubble">
+        “Could I get the pronoun you're called by (she/he/they/etc), and your occupation?"
+        </div>
+        <div class="response_text">Program Member Response:</div>
+        <md-field>
+            <label for="pronoun">Enter Pronoun</label>
+            <md-input id="pronoun" v-model="formData[activeProgramMember][columnMap['pronoun'].id]"></md-input>
+        </md-field>
+        <md-field>
+            <label for="occupation">Enter Occupation</label>
+            <md-input id="occupation" v-model="formData[activeProgramMember][columnMap['occupation'].id]"></md-input>
+        </md-field>
+        
+        </md-card-content>
+         <md-divider></md-divider>
+         <md-card-content>
+    
+        <h3>Identify pre-existing committee or project interest</h3>
+        <div class="speech-bubble">
+        “I’m not sure if you’re familiar with any of our committees, or projects we’ve been working on, but if you are, is there a specific committee or project we’re involved in that you know you’d be interested in?”
+        </div>
+        <div class="response_text">Program Member Response:</div>
+        <md-checkbox v-for="interest in formOptions.programsAndCommittees" :key="interest" :value="interest" v-model="tempData.interests"  name="interests">{{ interest }}</md-checkbox>
+        
+        <!--
+        <md-field v-if="">
+            <md-input placeholder='If "Other", please list here'></md-input>
+        </md-field>
+        -->
+        
+         </md-card-content>
+         <md-divider></md-divider>
+         <md-card-content>
+        
+        <h3>Identify additional skills/resources</h3>
+        <div class="speech-bubble">
+        “Do you have any additional skills or experience that you’d be interested in contributing- like design, photography, writing, childcare, etc?”
+        </div>
+        <div class="response_text">Write any additional skills or interests here:</div>
+        <md-field>
+            <label for="skills">Enter Skills\Resources</label>
+            <md-textarea id="skills" v-model="formData[activeProgramMember][columnMap['skills'].id]"></md-textarea>   
+        </md-field>
+        
+        </md-card-content>
+         <md-divider></md-divider>
+         <md-card-content>
+        
+        <h3>Answer any questions</h3>
+        <div class="speech-bubble">
+        “OK, so do you have any questions about DSA?”
+        </div>
+        
+        <em>
+        (If somebody asks a question you’re not sure about, note it, say “Honestly, I’m not sure- let me check on that and get back to you.” and post the question in the #mobilizerdesk channel so you can text back an answer later)
+        <br/>
+        <br/>
+        </em>
+        
+        <div class="speech-bubble">
+        “If you think of any any other questions, just text me at this number.”
+        </div>
+      
+       </md-card-content>
+         <md-divider></md-divider>
+         <md-card-content>
+      
+        <h3>Schedule Meetup</h3>
+        <div class="speech-bubble">
+        “Alright, so if you’re still interested in getting involved in DSA, one of the best ways is to come to a <b>[social/general meeting]</b>- I’ll be at the next one at <b>[location]</b> on <b>[date/time]</b>- it’s a great way to meet some of the members, meet the committee stewards/leadership, etc. and see what we’re all about. Think you could make that?”
+        </div>
+        <div class="response_text">Program Member Response:</div>
+        <md-field>
+          <md-select v-model="formData[activeProgramMember][columnMap['meetup_scheduled'].id]">
+              <md-option v-for="schedule_opt in formOptions.meetingScheduledResponses" :key="schedule_opt" :value="schedule_opt">{{ schedule_opt }}</md-option>
+          </md-select>
+        </md-field>
+        <md-field>
+          <label for="meetup_event">Enter Event {{ activeProgramMemberData.name}} Says They'll Attend</label>
+          <md-input v-model="formData[activeProgramMember][columnMap['meetup_event'].id]" placeholder='Enter Meetup Event'></md-input>
+        </md-field>
+    
+    
+        <div class="speech-bubble">"Bye, and thanks for your time!"</div>
+        
+        </md-card-content>
+    </md-card>
+    
+    <md-card class="step_box" v-if="formOptions.showSteps">
+    <md-toolbar :md-elevation="1">
+          <span class="md-title">Followup Text</span><br/>
+          <span class="md-subhead">  (Send 24-48 hours after intake call)</span>
+        </md-toolbar>
+        <md-card-content>
+        <div class="speech-bubble-text">
+        “Hey <b>{{ activeProgramMemberData.name}}</b> - was really nice talking to you the other day, just wanted to follow up to make sure you had the details of our <b>[social/general]: [location/date/time]</b>. Hope to see you there!"
+        </div>
+        <md-checkbox v-model="formData[activeProgramMember][columnMap['followup_text_sent'].id]" :value="true">Text Sent?</md-checkbox>
+        </md-card-content>
+    </md-card>
+  
+    <md-card class="step_box" v-if="formOptions.showSteps">
+        <md-toolbar :md-elevation="1">
+          <span class="md-title">Meetup</span>
+        </md-toolbar>
+        <md-card-content>
+        <div class="response_text">Meetup Guidelines</div>
+        <ul>
+        <li>We’ll make an announcement at the event, but <b>find your program members and introduce yourself!</b></li>
+        
+        <li>Keep an open mind and be friendly</li>
+        
+        <li><b>Learn about your program members</b>- their interests, best way to contact, availability, etc</li>
+        
+        <li><b>Make introductions</b>- particularly to members that share interests, professions or are in committees your program member has expressed interest in </li>
+        
+        <li>Explain Slack, how we use it, and <b>ask if the Program Member would like to be added</b></li>
+        
+        <li><b>Explain basic stuff</b>- committee/leadership structures, general meetings, grievance policy, etc</li>
+        
+        <li><b>Answer any questions</b>; if you’re not sure, note and contact #mobilizerdesk (or ask around the event- if the question is pertinent to a specific committee or project, it can be an opportunity to introduce the program member to a active member.)</li>
+        </ul>
+        
+        <div class="response_text">Please check the following:</div>
+
+        <md-checkbox v-model="formData[activeProgramMember][columnMap['attended_meetup'].id]" :value="true">Attended General or Social</md-checkbox>
+        <md-checkbox v-model="formData[activeProgramMember][columnMap['met_pm'].id]" :value="true"> Met <b>{{ activeProgramMemberData.name}}</b></md-checkbox>
+        <md-checkbox v-model="formData[activeProgramMember][columnMap['add_to_slack'].id]" :value="true">Add <b>{{ activeProgramMemberData.name}}</b> to Slack</md-checkbox>
+        
+        </md-card-content>
+       </md-card>
+    
+    <md-card class="step_box">
+      <md-toolbar :md-elevation="1">
+          <span class="md-title">Complete This Mobilization</span>
+        </md-toolbar>
+        <md-card-content>
+          <div class="response-text">If you've completed this mobilization (or this program member wasn't interested or not reachable), click below to close this assignment.</div>
+        </md-card-content>
+        <md-card-actions>
+          <md-button id="mark_as_done" v-on:click="doneButtonToggle( tempData.doneButtonState )" 
+                                       v-bind:class="{ 'md-accent' : ( tempData.doneButtonState == 'Open' ) }" 
+                                       class="md-raised">
+                                         <span v-if="tempData.doneButtonState == 'Open'">Mark as Done!</span>
+                                         <span v-if="tempData.doneButtonState == 'Marked Done'">Marked Done</span>
+                                       </md-button>
+        </md-card-actions>
+    </md-card>
+    
+    <md-card class="step_box md-accent">
+        <md-toolbar :md-elevation="1">
+          <span class="md-title">Sketch Alert</span>
+        </md-toolbar>
+        <md-card-content>
+        <div style="padding-bottom:20px;">If at any point the person you're mobilizing makes you uncomfortable, or if you suspect they may be an infiltrator, cop or other bad actor, please stop the process and click the checkbox below!</div>
+        <md-checkbox v-model="formData[activeProgramMember][columnMap['sketch'].id]" :value="true" style="md-accent"><b>Mark as Sketch</b></md-checkbox>
+        </md-card-content>
+    </md-card>
+  
+  </form>
+
+  </div>
+    <div id="snackbar" >
+    </div>
+
+    <md-snackbar id="login-snackbar" :md-duration="2000" :md-active.sync="formOptions.showLoginError">
+      <span><span style="color:yellow">ಠ_ಠ</span> Incorrect Password!</span>
+    </md-snackbar>
+</div>
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+    <script src="https://unpkg.com/vue-material@1.0.0-beta-8/dist/vue-material.min.js"></script>
+    <!-- <script src="https://unpkg.com/vue-material@beta"></script> -->
+    <?!= HtmlService.createHtmlOutputFromFile('Javascript').getContent(); ?>
+  </body>
+</html>
+
+

@@ -1,0 +1,228 @@
+<!-- Custom styles. -->
+<style>
+  body 
+  { 
+  font-family: 'Open Sans', sans-serif;
+  background:#e8e8e8;
+  color:#464646;
+  width:100%;
+  min-width:480px;
+  }
+  
+  h1, h2, div {
+    font-family: 'Open Sans', sans-serif;
+  }
+  
+  h2 {
+    background: #464646;
+    color: #fff;
+    margin-left: -20px;
+    padding-left: 10px;
+    font-size: 16px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    font-weight: 300;
+    margin-right: -20px;
+    margin-top: -8px;
+  }
+  
+  h3 {
+        margin-top: 0px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #5d5d5d;
+  }
+  
+  .login{
+    background: #ffffff;
+    width: 360px;
+    box-shadow: 4px 4px 12px rgba(0,0,0,.1);
+    padding: 20px;
+    position: fixed;
+    left: 50%;
+    top: 30%;
+    z-index: 5;
+    margin-left: -180px;
+    border-radius: 6px
+  }
+  
+  .scrim {
+    width:100%;
+    height:100%;
+    background:rgb(0,0,0,.8);
+    position:fixed;
+    z-index:4;
+  }
+  
+  .step_box {
+    background-color:#ffffff;
+    /*
+    padding:20px;
+    box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.29);
+    */
+    border-top:6px solid #afafaf;
+    margin-bottom:30px;
+  }
+    
+  fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    padding-top: 10px;
+  }
+
+  .response_text {
+    font-size:12px;
+    margin-top:10px;
+  }
+  
+  .pm_details {
+  }
+  
+  .pm_label {
+    color: #7d7d7d;
+    font-size: 13px;
+    margin-top: 2px;
+    padding-left: 30px;
+  }
+  
+  .pm_details ul {
+    margin-bottom: 30px;
+    margin-top:10px;
+    width: 50%;
+    display: inline-block;
+    float: left;
+    padding-left: 30px;
+  }
+  
+  .pm_details ul li {
+  }
+  
+  .pm_details ul li span {
+    font-size:14px;
+    font-weight:bold;
+        display: block;
+    margin-top: -10px;
+  }
+  
+  .login-card {
+    margin-top:20px;
+    margin-bottom:20px;
+    /*
+    padding:20px;
+    min-height: 100px; 
+    */
+  }
+  
+  .login-card .md-icon {
+    margin:0;
+  }
+  
+  .login-card .md-title {
+    margin-left:12px;
+  }
+  
+  .speech-bubble {
+	position: relative;
+	background: #eaeaea;
+    color:#333333;
+	border-radius: .4em;
+    box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.29);
+    padding:20px;
+    margin-bottom:20px;
+    width:95%;
+  }
+  
+  .speech-bubble:after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 0;
+    height: 0;
+    border: 20px solid transparent;
+    border-left-color: #eaeaea;
+    border-right: 0;
+    border-bottom: 0;
+    margin-top: -10px;
+    margin-right: -20px;
+  }
+  
+  .speech-bubble-text {
+	position: relative;
+	background: #518af7;
+    color:#ffffff;
+	border-radius: .4em;
+    box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.29);
+    padding:20px;
+    margin-bottom:20px;
+    width:95%;
+  }
+  
+  .speech-bubble-text:after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 0;
+    height: 0;
+    border: 20px solid transparent;
+    border-left-color: #518af7;
+    border-right: 0;
+    border-bottom: 0;
+    margin-top: -10px;
+    margin-right: -20px;
+  }
+
+
+   .step_box.sketch {
+     color:#ffffff;
+     background-color:red;
+   }
+   
+   .step_box.sketch .mdl-checkbox.is-checked .mdl-checkbox__tick-outline {
+    /*background: rgb(255, 255, 255)url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiI…lsZT0iZmlsbDojZmZmZmZmO2ZpbGwtb3BhY2l0eToxO3N0cm9rZTpub25lIiAvPgo8L3N2Zz4K);*/
+    background: rgb(255, 255, 255);
+    }
+   
+   .login-card {
+     /*display:none;*/
+   }
+   
+   #intake_form {
+       opacity: .2;
+       transition:all .3s;
+   }
+   #intake_form.active {
+     opacity: 1 !important;
+   }
+   
+   #login-snackbar {
+     z-index:6;
+   }
+   
+   #progressTracker{
+   }
+   #progressTracker table td, #progressTracker table th {
+      width:65px;
+    }
+    #progressTracker table td.firstCol, #progressTracker table th:first-child {
+      width:auto;
+      padding-left:10px;
+    }
+    #progressTracker .md-table-cell-container,#progressTracker .md-table-head-label {
+      padding:0;
+    }
+
+    .md-layout-item {
+      max-width:450px;
+    }
+     
+    .md-dialog {
+      max-height:250px;
+      min-width: 350px;
+    }
+   
+</style>
+
