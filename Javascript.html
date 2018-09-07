@@ -94,13 +94,10 @@ var app = new Vue({
     // get an array of all the mobilizers from formData
     //
     mobilizers:{
-      get: function(){ 
-        var tmp = [];
-        for(i = 1; i < this.formData.length; ++i){
-          tmp.push( this.formData[i][columnMap['mob_name'].id] );
-        };
-        tmp = uniq(tmp);
-        return tmp;
+      get: function() { 
+        return this.formData.map(function (d) {
+          d[columnMap['mob_name'].id]
+        });
       },
       set: function(val){
         return val;
@@ -110,36 +107,21 @@ var app = new Vue({
     // get an array of program members assigned to the active mobilizer from formData
     //
     programMembers:{
-      get: function(){ 
-        var tmp = [];
-        for(i = 1; i < this.formData.length; ++i){
-          if(this.formData[i][columnMap['mob_name'].id] == this.activeMobilizer){ // this program member is assigned to the active mobilizer
-            
-            var row = this.formData[i];
-            
-            // extra data for use in the program members progress table
-            var textSent = false;
-            var callAttempted = false;
-            var sentFollowup = false;
-            var attended = false;
-            
-            if(row[columnMap['initial_text_sent'].id]==true){textSent = true;};
-            if(row[columnMap['call_made'].id]!==""){callAttempted = true;};
-            if(row[columnMap['followup_text_sent'].id]==true){sentFollowup = true;};
-            if(row[columnMap['attended_meetup'].id]==true){attended = true;};
-            
-            tmp.push( {
-                      name: row[columnMap['pm_name'].id],
-                      id:i,
-                      textSent : textSent,
-                      callAttempted : callAttempted,
-                      sentFollowup: sentFollowup,
-                      attended: attended
-             } );
-          }
-        };
-        
-        return tmp;
+      get: function() { 
+        return this.formData
+          .filter(function(d){ 
+            return d.columnMap.mob_name.id === this.activeMobilizer
+          })
+          .map(function(d, i) {
+            return {
+              name: row[columnMap['pm_name'].id],
+              id:i,
+              textSent : d[columnMap.initial_text_sent].id === true,
+              callAttempted : d[columnMap.call_made].id !== "",
+              sentFollowup: d[columnMap.followup_text_sent].id === true,
+              attended: d[columnMap.attended_meetup].id === true
+             };
+          });
       },
       set: function(val){
         return val;
