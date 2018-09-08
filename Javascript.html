@@ -3,57 +3,57 @@
 // Field options
 //
 var programsAndCommittees = [
-    "Communications",
-    "Direct Service/Brake Lights",
-    "Healthcare For All",
-    "Immigration Working Group",
-    "Labor Standing",
-    "MAC",
-    "Socialist Feminist Caucus",
-    "Political Education",
-    "Socialists Of Color",
-    "Tech",
-    "Other",
+  "Communications",
+  "Direct Service/Brake Lights",
+  "Healthcare For All",
+  "Immigration Working Group",
+  "Labor Standing",
+  "Municipal Action",
+  "Socialist Feminist Caucus",
+  "Political Education",
+  "Socialists Of Color",
+  "Tech",
+  "Other",
 ];
 
 var initialTextResponses = [
-    "Call Scheduled",
-    "Left Town / Not Interested",
-    "No Reply",
+  "Call Scheduled",
+  "Left Town / Not Interested",
+  "No Reply",
 ];
 
 var meetingScheduledResponses = [
-    "Meetup Scheduled",
-    "Can't/May Attend Later Events",
-    "Not Interested",
-    //"Other",
+  "Meetup Scheduled",
+  "Can't/May Attend Later Events",
+  "Not Interested",
+  //"Other",
 ];
 
 //
 // Map of fields to spreadsheet columns
 // don't really use the 'type' atm ::shrug::
 // 
-var columnMap = { 
-  mob_name : { id: "a", type: "string" },
-  pm_name : { id: "b", type: "string" },
-  pm_phone : { id: "c", type: "string" },
-  pm_email : { id: "d", type: "string" },
-  pm_assigned_date : { id: "e", type: "string" },
-  pm_assigned_status: { id: "f", type: "string" },
-  pronoun : { id:"g", type: "string" },
-  initial_text_sent : { id:"h", type: "bool" },
-  initial_text_response : { id:"i", type: "string" },
-  call_made: { id:"j", type: "string" },
-  occupation: { id:"k", type: "string" },
-  skills:{ id:"l", type: "string" },
-  interests: { id:"m", type: "array" },
-  meetup_scheduled: { id:"n", type: "string" },
-  followup_text_sent: { id:"o", type: "bool" },
-  attended_meetup: { id:"p", type: "bool" },
-  met_pm: { id:"q", type: "bool" },
-  add_to_slack : { id:"r", type: "bool" },
-  meetup_event : { id:"s", type: "string" },
-  sketch: { id:"t", type: "bool" },
+var columnMap = {
+  mobName: { id: "a", type: String },
+  pmName: { id: "b", type: String },
+  pmPhone: { id: "c", type: String },
+  pmEmail: { id: "d", type: String },
+  pmAssignedDate : { id: "e", type: String },
+  pmAssignedStatus: { id: "f", type: String },
+  pronoun: { id: "g", type: String },
+  initialTextSent : { id:"h", type: Boolean },
+  initialTextResponse : { id:"i", type: String },
+  callMade: { id: "j", type: String },
+  occupation: { id: "k", type: String },
+  skills:{ id: "l", type: String },
+  interests: { id: "m", type: Array },
+  meetupScheduled: { id: "n", type: String },
+  followupTextSent: { id: "o", type: Boolean },
+  attendedMeetup: { id: "p", type: Boolean },
+  metPm: { id: "q", type: Boolean },
+  addToSlack : { id: "r", type: Boolean },
+  meetupEvent : { id: "s", type: String },
+  sketch: { id: "t", type: Boolean },
 }
 //
 // Alphabet Map (using this so the columnmap is easier to read/match to the spreadsheet) 
@@ -96,7 +96,7 @@ var app = new Vue({
     mobilizers:{
       get: function() { 
         return this.formData.map(function (d) {
-          d[columnMap['mob_name'].id]
+          d[columnMap['mobName'].id]
         });
       },
       set: function(val){
@@ -110,16 +110,16 @@ var app = new Vue({
       get: function() { 
         return this.formData
           .filter(function(d){ 
-            return d.columnMap.mob_name.id === this.activeMobilizer
+            return d.columnMap.mobName.id === this.activeMobilizer
           })
           .map(function(d, i) {
             return {
-              name: row[columnMap['pm_name'].id],
+              name: d[columnMap.pmName.id],
               id:i,
-              textSent : d[columnMap.initial_text_sent].id === true,
-              callAttempted : d[columnMap.call_made].id !== "",
-              sentFollowup: d[columnMap.followup_text_sent].id === true,
-              attended: d[columnMap.attended_meetup].id === true
+              textSent : d[columnMap.initialTextSent].id === true,
+              callAttempted : d[columnMap.callMade].id !== "",
+              sentFollowup: d[columnMap.followupTextSent].id === true,
+              attended: d[columnMap.attendedMeetup].id === true
              };
           });
       },
@@ -131,15 +131,15 @@ var app = new Vue({
     // get the details for the active program member from formData, for the program member details "contact card"
     //
     activeProgramMemberData:function(){ 
-      var assignedDate = this.formData[this.activeProgramMember][columnMap.pm_assigned_date.id];
+      var assignedDate = this.formData[this.activeProgramMember][columnMap.pmAssignedDate.id];
       var dueDate = moment(assignedDate).add(7, 'days').format('MM/DD/YYYY');
       var pmData = {
-        name : this.formData[this.activeProgramMember][columnMap['pm_name'].id],
-        phone : this.formData[this.activeProgramMember][columnMap['pm_phone'].id],
-        email : this.formData[this.activeProgramMember][columnMap['pm_email'].id],
+        name : this.formData[this.activeProgramMember][columnMap.pmName.id],
+        phone : this.formData[this.activeProgramMember][columnMap.pmPhone.id],
+        email : this.formData[this.activeProgramMember][columnMap.pmEmail.id],
         assigned : assignedDate,
         due : dueDate,
-        status : this.formData[this.activeProgramMember][columnMap['pm_assigned_status'].id]
+        status : this.formData[this.activeProgramMember][columnMap.pmAssignedStatus.id]
       }
       return pmData;
     },
@@ -147,17 +147,17 @@ var app = new Vue({
   watch: {
     activeProgramMember: function(){ 
       if(this.activeProgramMember !== ""){
-        console.log("Editing Row: "+this.activeProgramMember);
+        console.log("Editing Row: " + this.activeProgramMember);
         
         // Vue Material hacks, see note in data
-        var interests = this.formData[this.activeProgramMember][columnMap["interests"].id];
+        var interests = this.formData[this.activeProgramMember][columnMap.interests.id];
         if(interests != ''){
-          this.tempData.interests = JSON.parse(this.formData[this.activeProgramMember][columnMap["interests"].id]);
+          this.tempData.interests = JSON.parse(this.formData[this.activeProgramMember][columnMap.interests.id]);
         } else {
           this.tempData.interests = [];
         }
         
-        this.tempData.doneButtonState = this.formData[this.activeProgramMember][columnMap["pm_assigned_status"].id];
+        this.tempData.doneButtonState = this.formData[this.activeProgramMember][columnMap.pmAssignedStatus.id];
         
       }
     },
@@ -167,24 +167,26 @@ var app = new Vue({
     //
     // Vue Materal semi-hacks, see note above
     //
-    'tempData.interests': function(){
-       this.formData[this.activeProgramMember][columnMap["interests"].id] = JSON.stringify(this.tempData.interests);
-       if(this.formDataLoaded){
-            this.putSpreadsheetData();
-       }
-    },
-    'tempData.doneButtonState': function(){
-      var status = this.tempData.doneButtonState;
-      console.log(status);
-      if( status == "Open"){
-        this.formData[this.activeProgramMember][columnMap["pm_assigned_status"].id] = "Open";
-      }
-      if( status == "Marked Done"){
-        this.formData[this.activeProgramMember][columnMap["pm_assigned_status"].id] = "Marked Done";
-      }
-      if(this.formDataLoaded){
-            this.putSpreadsheetData();
-       }
+    tempData: {
+      interests: function(){
+        this.formData[this.activeProgramMember][columnMap.interests.id] = JSON.stringify(this.tempData.interests);
+        if(this.formDataLoaded){
+          this.putSpreadsheetData();
+        }
+      },
+      doneButtonState: function(){
+        var status = this.tempData.doneButtonState;
+        console.log(status);
+        if( status == "Open"){
+          this.formData[this.activeProgramMember][columnMap.pmAssignedStatus.id] = "Open";
+        }
+        if( status == "Marked Done"){
+          this.formData[this.activeProgramMember][columnMap.pmAssignedStatus.id] = "Marked Done";
+        }
+        if(this.formDataLoaded){
+          this.putSpreadsheetData();
+        }
+      },
     },
     ///
     /// on change, push the data to the spreadsheet
@@ -253,8 +255,8 @@ var app = new Vue({
     // If there's no response to initial text, or they're not interested, hide the rest of the steps
     //
     showHideSteps: function(){
-      var initText = this.formData[this.activeProgramMember][columnMap["initial_text_response"].id];
-      if(initText == "Call Scheduled" || initText == ""){
+      var initText = this.formData[this.activeProgramMember][columnMap.initialTextResponse.id];
+      if (initText == "Call Scheduled" || initText == "") {
         this.formOptions.showSteps = true;
       } else {
         this.formOptions.showSteps = false;
@@ -263,7 +265,7 @@ var app = new Vue({
     //
     // Select a Program Member from the table
     //
-    onTableSelect: function(item) { 
+    onTableSelect: function (item) { 
       if(typeof item != 'undefined' && item != null){ 
         this.activeProgramMember = item.id;
       };

@@ -25,6 +25,7 @@
 <body>
   
 <div id="app" v-cloak>
+  <!-- TODO: replace login dialog and snackbar with component -->
   <md-dialog :md-active.sync="formOptions.showLogin" :md-close-on-esc="false" :md-click-outside-to-close="false">
     <md-dialog-title>Please Log In</md-dialog-title>
     <md-dialog-content>
@@ -355,13 +356,12 @@
   </div>
 
   <div id="snackbar" ></div>
-
     <md-snackbar 
       id="login-snackbar" 
       :md-duration="2000" 
       :md-active.sync="formOptions.showLoginError"
     >
-      <span style="color:yellow">ಠ_ಠ</span>
+      <span style="color: yellow">ಠ_ಠ</span>
       <span>Incorrect Password!</span>
     </md-snackbar>
 </div>
