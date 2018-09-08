@@ -131,7 +131,7 @@ var app = new Vue({
     // get the details for the active program member from formData, for the program member details "contact card"
     //
     activeProgramMemberData:function(){ 
-      var assignedDate = this.formData[this.activeProgramMember][columnMap['pm_assigned_date'].id];
+      var assignedDate = this.formData[this.activeProgramMember][columnMap.pm_assigned_date.id];
       var dueDate = moment(assignedDate).add(7, 'days').format('MM/DD/YYYY');
       var pmData = {
         name : this.formData[this.activeProgramMember][columnMap['pm_name'].id],
@@ -197,8 +197,6 @@ var app = new Vue({
           }
         }
     },
-    
-    
   },
   methods: {
     //
@@ -241,12 +239,14 @@ var app = new Vue({
       var output = this.formData[this.activeProgramMember];
       console.log("sending active row: "+this.activeProgramMember);
       console.log(output);
-      google.script.run.withSuccessHandler(this.onPutSpreadsheetDataSuccess).updateSpreadsheet(this.columnMap, this.activeProgramMember, output, this.pw);
+      google.script.run
+        .withSuccessHandler(this.onPutSpreadsheetDataSuccess)
+        .updateSpreadsheet(this.columnMap, this.activeProgramMember, output, this.pw);
     },
     //
     // put spreadsheet callback
     //
-    onPutSpreadsheetDataSuccess: function(){ 
+    onPutSpreadsheetDataSuccess: function () { 
       console.log("data PUT"); 
     },
     //
