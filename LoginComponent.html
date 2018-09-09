@@ -1,37 +1,37 @@
-<script id="login-template" type="text/x-template">
-  <div>
-    <md-dialog 
-      :md-active.sync="formOptions.showLogin" 
-      :md-close-on-esc="false" 
-      :md-click-outside-to-close="false"
-    >
-      <md-dialog-title>Please Log In</md-dialog-title>
-      <md-dialog-content>
-        <md-field>
-          <label>Password</label>
-          <md-input v-model="pw" type="password"></md-input>
-        </md-field>
-      </md-dialog-content>
-      <md-dialog-actions>
-        <md-button @click="attemptLogin">Login</md-button>
-      </md-dialog-actions>
-    </md-dialog>
-  
+<template id="login-dialog">
+  <md-dialog 
+    :md-active.sync="formOptions.showLogin" 
+    :md-close-on-esc="false" 
+    :md-click-outside-to-close="false"
+  >
+    <md-dialog-title>Please Log In</md-dialog-title>
+    <md-dialog-content>
+      <md-field>
+        <label>Password</label>
+        <md-input v-model="pw" type="password"></md-input>
+      </md-field>
+    </md-dialog-content>
+    <md-dialog-actions>
+      <md-button @click="attemptLogin">Login</md-button>
+    </md-dialog-actions>
+
     <md-snackbar 
       id="login-snackbar" 
       :md-duration="2000" 
-      :md-active.sync="formOptions.showLoginError"
+      :md-active.sync="showLoginError"
     >
       <span style="color:yellow">ಠ_ಠ</span>
       <span>Incorrect Password!</span>
     </md-snackbar>
-  </div>
-</script>
+  </md-dialog>
+</template>
 
 <script>
   (function(){
-    Vue.component("login-dialog", {
-      template: "#login-template",
+    window.vueComponents = window.vueComponents || {};
+
+    window.vueComponents.loginDialog = {
+      template: "#login-dialog",
       data: function() { return {
         pw: "",
         showLoginError: false,
@@ -42,12 +42,12 @@
           .withSuccessHandler(function(data) {
             if(data !== "OK") return this.showLoginError = true;
             
-            if (data === "OK")this.$emit("login-successful");   
+            if (data === "OK") this.$emit("login-succes", this.pw);   
           })
           .tryLogin( this.pw );
         },
       }
-    });
+    };
   })();
   
 </script>

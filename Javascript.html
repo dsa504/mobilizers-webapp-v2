@@ -34,33 +34,26 @@ var meetingScheduledResponses = [
 // don't really use the 'type' atm ::shrug::
 // 
 var columnMap = {
-  mobName: { id: "a", type: String },
-  pmName: { id: "b", type: String },
-  pmPhone: { id: "c", type: String },
-  pmEmail: { id: "d", type: String },
-  pmAssignedDate : { id: "e", type: String },
-  pmAssignedStatus: { id: "f", type: String },
-  pronoun: { id: "g", type: String },
-  initialTextSent : { id:"h", type: Boolean },
-  initialTextResponse : { id:"i", type: String },
-  callMade: { id: "j", type: String },
-  occupation: { id: "k", type: String },
-  skills:{ id: "l", type: String },
-  interests: { id: "m", type: Array },
-  meetupScheduled: { id: "n", type: String },
-  followupTextSent: { id: "o", type: Boolean },
-  attendedMeetup: { id: "p", type: Boolean },
-  metPm: { id: "q", type: Boolean },
-  addToSlack : { id: "r", type: Boolean },
-  meetupEvent : { id: "s", type: String },
-  sketch: { id: "t", type: Boolean },
-}
-//
-// Alphabet Map (using this so the columnmap is easier to read/match to the spreadsheet) 
-//
-var alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
-for (var k in columnMap){
-  columnMap[k].id = alphabet.indexOf(columnMap[k].id);
+  mobName:              { id: 0, type: String },
+  pmName:               { id: 1, type: String },
+  pmPhone:              { id: 2, type: String },
+  pmEmail:              { id: 3, type: String },
+  pmAssignedDate:       { id: 4, type: String },
+  pmAssignedStatus:     { id: 5, type: String },
+  pronoun:              { id: 6, type: String },
+  initialTextSent:      { id: 7, type: Boolean },
+  initialTextResponse:  { id: 8, type: String },
+  callMade:             { id: 9, type: String },
+  occupation:           { id: 10, type: String },
+  skills:               { id: 11, type: String },
+  interests:            { id: 12, type: Array },
+  meetupScheduled:      { id: 13, type: String },
+  followupTextSent:     { id: 14, type: Boolean },
+  attendedMeetup:       { id: 15, type: Boolean },
+  metPm:                { id: 16, type: Boolean },
+  addToSlack:           { id: 17, type: Boolean },
+  meetupEvent:          { id: 18, type: String },
+  sketch:               { id: 19, type: Boolean },
 }
 
 // *********
@@ -69,6 +62,10 @@ for (var k in columnMap){
 Vue.use(VueMaterial.default);
 var app = new Vue({
   el: '#app',
+  components: {
+    "login-dialog": window.vueComponents.loginDialog,
+    "program-member-info": window.vueComponents.programMemberInfo
+  },
   data: {
     activeMobilizer: "",           // int - key value of the currently active mobilizer in mobilizers[]
     activeProgramMember: "",       // int - key of row in formData[] we're editing
@@ -191,7 +188,7 @@ var app = new Vue({
     ///
     /// on change, push the data to the spreadsheet
     ///
-    formData: function(){ 
+    formData: function() { 
         if(this.activeProgramMember != 'undefined' && this.activeProgramMember != null && this.activeProgramMember != ""){
           this.showHideSteps(); // If there's no response to initial text, or they're not interested, hide the rest of the steps
           if(this.formDataLoaded){
@@ -201,55 +198,33 @@ var app = new Vue({
     },
   },
   methods: {
-    //
-    // Attempt to login to the backend
-    //
-    attemptLogin: function(e){  
-      google.script.run.withSuccessHandler(this.loginAttempt).tryLogin( this.pw );
-    },
-    //
-    // Login callback
-    //
-    loginAttempt: function(data){ 
-      if(data == "OK"){
-         console.log("Logged In!");
-         this.formOptions.showLogin = false;
-         this.getSpreadsheetData();
-      }else{
-        console.log("Oops, wrong password.");
-        this.formOptions.showLoginError = true;
-      }
+    onLoginSuccess: function(pw) {
+      this.pw = pw;
+      this.showLogin = false;
     },
     //
     // get the spreadsheet data
     //
     getSpreadsheetData: function(){ 
       console.log("Fetching Data...");
-      google.script.run.withSuccessHandler( this.onGetSpreadsheetDataSuccess ).getSpreadsheet( this.pw );
+      google.script.run
+        .withSuccessHandler(function(data) {
+          this.formData = data;
+          this.formDataLoaded = true;
+        })
+        .getSpreadsheet(this.pw);
     },
-    //
-    // get spreadsheet callback
-    //
-    onGetSpreadsheetDataSuccess: function(data){ 
-      this.formData = data;
-      this.formDataLoaded = true;
-    },
-    //
     // put the spreadsheet data
     //
     putSpreadsheetData: function(){ 
       var output = this.formData[this.activeProgramMember];
-      console.log("sending active row: "+this.activeProgramMember);
+      console.log("sending active row: " + this.activeProgramMember);
       console.log(output);
       google.script.run
-        .withSuccessHandler(this.onPutSpreadsheetDataSuccess)
+        .withSuccessHandler(function() {
+          console.log("data PUT"); 
+        })
         .updateSpreadsheet(this.columnMap, this.activeProgramMember, output, this.pw);
-    },
-    //
-    // put spreadsheet callback
-    //
-    onPutSpreadsheetDataSuccess: function () { 
-      console.log("data PUT"); 
     },
     //
     // If there's no response to initial text, or they're not interested, hide the rest of the steps
@@ -282,14 +257,6 @@ var app = new Vue({
       }
     }
   }
-})
-
-//
-// helpers & utils
-//
-
-// Remove Duplicates in Array 
-function uniq(a){var prims={"boolean":{},number:{},string:{}},objs=[];return a.filter(function(item){var type=typeof item;if(type in prims)return prims[type].hasOwnProperty(item)?false:prims[type][item]=true;else return objs.indexOf(item)>=0?false:objs.push(item)})}
-
+});
 
 </script>
