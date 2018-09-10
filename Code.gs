@@ -1,3 +1,4 @@
+var appSettings = getAppSettings();
 var ss = SpreadsheetApp.openById(appSettings.spreadsheetId);
 var ws = ss.getSheets()[0];
 
@@ -81,7 +82,7 @@ function setStatus(row, status){
 
 // app entry point
 function doGet() {
-  var page = HtmlService.createTemplateFromFile('index');
+  var page = HtmlService.createTemplateFromFile('Index');
  
   return page.evaluate()
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
