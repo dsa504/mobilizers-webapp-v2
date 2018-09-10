@@ -1,8 +1,7 @@
-<template id="program-member-info">
+<template id="intake-form">
   <form 
-    id="intake_form" 
+    class="intake-form" 
     v-bind:class="{ active: (this.activeProgramMember !== '') }" 
-    v-if="activeProgramMember"
   >
     <md-card class="login-card" v-if="activeProgramMember">
       <md-toolbar :md-elevation="1">
@@ -52,25 +51,23 @@
         <span class="md-title">Intake Call</span>
       </md-toolbar>
       <md-card-content>
-        
         <h3>“Hi, is this <b>{{ programMember.name }}</b>?”</h3>
-        
         <div class="response_text">Program Member Response:</div>
-        
         <md-radio v-model="programMemberInfo.callMade" value="Yup!">Yup!</md-radio>
         <md-radio v-model="programMemberInfo.callMade" value="No Answer/Left Message">No Answer/Left Message</md-radio>
-        
       </md-card-content>
+      
       <md-divider></md-divider>
+      
       <md-card-content>
-        
         <h3>Introduce yourself</h3>
         <div class="speech-bubble">
           “This is <b>{{ programMember.mobName }}</b> from the DSA New Orleans mobilizers program - I’ve been assigned to you though the program, to act as a point of contact for you to DSA New Orleans, to answer any questions you might have, and help you get involved. First though I’ve just got a couple quick questions, if that’s cool?”
         </div>
-        
       </md-card-content>
+      
       <md-divider></md-divider>
+      
       <md-card-content>
         <h3>Identify Pronoun &amp; Occupation</h3>
         <div class="speech-bubble">
@@ -86,7 +83,9 @@
           <md-input id="occupation" v-model="programMember.occupation"></md-input>
         </md-field>
       </md-card-content>
+      
       <md-divider></md-divider>
+      
       <md-card-content>
         <h3>Identify pre-existing committee or project interest</h3>
         <div class="speech-bubble">
@@ -100,9 +99,10 @@
           v-model="tempData.interests"  
           name="interests"
         >{{ interest }}</md-checkbox>
-        
       </md-card-content>
+      
       <md-divider></md-divider>
+      
       <md-card-content>
         <h3>Identify additional skills/resources</h3>
         <div class="speech-bubble">
@@ -116,9 +116,10 @@
           v-model="programMember.skills"
           ></md-textarea>   
         </md-field>
-        
       </md-card-content>
+      
       <md-divider></md-divider>
+      
       <md-card-content>
         <h3>Answer any questions</h3>
         <div class="speech-bubble">
@@ -129,7 +130,6 @@
           <br/>
           <br/>
         </em>
-        
         <div class="speech-bubble">
           “If you think of any any other questions, just text me at this number.”
         </div>
@@ -153,14 +153,13 @@
           <md-input v-model="programMember.meetupEvent" placeholder='Enter Meetup Event'></md-input>
         </md-field>
         <div class="speech-bubble">"Bye, and thanks for your time!"</div>
-        
       </md-card-content>
     </md-card>
   
     <md-card class="step_box" v-if="formOptions.showSteps">
       <md-toolbar :md-elevation="1">
         <span class="md-title">Followup Text</span><br/>
-        <span class="md-subhead">  (Send 24-48 hours after intake call)</span>
+        <span class="md-subhead">(Send 24-48 hours after intake call)</span>
       </md-toolbar>
       <md-card-content>
         <div class="speech-bubble-text">
@@ -185,13 +184,10 @@
           <li><b>Explain basic stuff</b>- committee/leadership structures, general meetings, grievance policy, etc</li>
           <li><b>Answer any questions</b>; if you’re not sure, note and contact #mobilizerdesk (or ask around the event- if the question is pertinent to a specific committee or project, it can be an opportunity to introduce the program member to a active member.)</li>
         </ul>
-        
         <div class="response_text">Please check the following:</div>
-        
         <md-checkbox v-model="programMember.attendedMeetup" :value="true">Attended General or Social</md-checkbox>
-        <md-checkbox v-model="programMeber.metPm" :value="true"> Met <b>{{ programMember.name}}</b></md-checkbox>
+        <md-checkbox v-model="programMember.metPm" :value="true"> Met <b>{{ programMember.name}}</b></md-checkbox>
         <md-checkbox v-model="programMember.addToSlack" :value="true">Add <b>{{ programMember.name}}</b> to Slack</md-checkbox>
-        
       </md-card-content>
     </md-card>
   
@@ -203,15 +199,16 @@
         <div class="response-text">If you've completed this mobilization (or this program member wasn't interested or not reachable), click below to close this assignment.</div>
       </md-card-content>
       <md-card-actions>
-        <md-button 
+        
+        <md-switch 
           id="mark_as_done" 
-          v-on:click="doneButtonToggle( tempData.doneButtonState )" 
-          v-bind:class="{ 'md-accent' : ( tempData.doneButtonState == 'Open' ) }" 
           class="md-raised"
+          v-model="programMember.done" 
+          v-bind:class="{ 'md-accent' : !programMember.done }" 
         >
-        <span v-if="tempData.doneButtonState == 'Open'">Mark as Done!</span>
-        <span v-if="tempData.doneButtonState == 'Marked Done'">Marked Done</span>
-      </md-button>
+        <span v-if="!programMember.done">Mark as Done!</span>
+        <span v-if="programMember.done">Marked Done</span>
+      </md-switch>
     </md-card-actions>
     </md-card>
 
@@ -221,7 +218,7 @@
       </md-toolbar>
       <md-card-content>
         <div style="padding-bottom:20px;">If at any point the person you're mobilizing makes you uncomfortable, or if you suspect they may be an infiltrator, cop or other bad actor, please stop the process and click the checkbox below!</div>
-        <md-checkbox v-model="programMember.sketch" :value="true" style="md-accent"><b>Mark as Sketch</b></md-checkbox>
+        <md-checkbox v-model="programMember.sketch" :value="true" class="md-accent"><b>Mark as Sketch</b></md-checkbox>
       </md-card-content>
     </md-card>
 
@@ -232,11 +229,15 @@
   (function() {
     window.vueComponents = window.vueComponents || {};
 
-    window.vueComponents.programMemberInfo = {
-      template: "#program-member-info",
+    window.vueComponents.intakeForm = {
+      template: "#intake-form",
+      props: {
+        programMember: {type: Object, required: true},
+      },
       data: function() { return {
         programMemberInfo: {},
-      }},
-    };  
+      };},
+    };
+
   })();
 </script>
