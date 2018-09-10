@@ -199,17 +199,15 @@
         <div class="response-text">If you've completed this mobilization (or this program member wasn't interested or not reachable), click below to close this assignment.</div>
       </md-card-content>
       <md-card-actions>
-        
         <md-switch 
           id="mark_as_done" 
           class="md-raised"
           v-model="programMember.done" 
-          v-bind:class="{ 'md-accent' : !programMember.done }" 
         >
-        <span v-if="!programMember.done">Mark as Done!</span>
-        <span v-if="programMember.done">Marked Done</span>
-      </md-switch>
-    </md-card-actions>
+          <span v-if="!programMember.done">Mark as Done</span>
+          <span v-if="programMember.done">Marked Done</span>
+        </md-switch>
+      </md-card-actions>
     </md-card>
 
     <md-card class="step_box md-accent">

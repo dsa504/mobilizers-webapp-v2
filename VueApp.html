@@ -29,33 +29,6 @@ var meetingScheduledResponses = [
   //"Other",
 ];
 
-//
-// Map of fields to spreadsheet columns
-// don't really use the 'type' atm ::shrug::
-// 
-var columnMap = {
-  mobName:              { id: 0, type: String },
-  pmName:               { id: 1, type: String },
-  pmPhone:              { id: 2, type: String },
-  pmEmail:              { id: 3, type: String },
-  pmAssignedDate:       { id: 4, type: String },
-  pmAssignedStatus:     { id: 5, type: String },
-  pronoun:              { id: 6, type: String },
-  initialTextSent:      { id: 7, type: Boolean },
-  initialTextResponse:  { id: 8, type: String },
-  callMade:             { id: 9, type: String },
-  occupation:           { id: 10, type: String },
-  skills:               { id: 11, type: String },
-  interests:            { id: 12, type: Array },
-  meetupScheduled:      { id: 13, type: String },
-  followupTextSent:     { id: 14, type: Boolean },
-  attendedMeetup:       { id: 15, type: Boolean },
-  metPm:                { id: 16, type: Boolean },
-  addToSlack:           { id: 17, type: Boolean },
-  meetupEvent:          { id: 18, type: String },
-  sketch:               { id: 19, type: Boolean },
-}
-
 // *********
 // Vue
 // *********
@@ -69,14 +42,12 @@ var app = new Vue({
   data: {
     activeMobilizer: "",           // int - key value of the currently active mobilizer in mobilizers[]
     activeProgramMember: "",       // int - key of row in formData[] we're editing
-    columnMap: columnMap, 
-    pw: "",                        // password
     formData: "",                  // data from spreadsheet (this is the data we're modifying with the form)
     formDataLoaded: false,         // flag indicated we've pulled the spreadsheet data
     formOptions: {
-      initialTextResponses : initialTextResponses,
-      programsAndCommittees : programsAndCommittees,
-      meetingScheduledResponses : meetingScheduledResponses,
+      initialTextResponses: initialTextResponses,
+      programsAndCommittees: programsAndCommittees,
+      meetingScheduledResponses: meetingScheduledResponses,
       showSteps: true,
       showLogin: true,
       showLoginError: false,
@@ -90,7 +61,7 @@ var app = new Vue({
     //
     // get an array of all the mobilizers from formData
     //
-    mobilizers:{
+    mobilizers: {
       get: function() { 
         return this.formData.map(function (d) {
           d[columnMap['mobName'].id]
@@ -212,7 +183,7 @@ var app = new Vue({
           this.formData = data;
           this.formDataLoaded = true;
         })
-        .getSpreadsheet(this.pw);
+        .getSpreadsheet();
     },
     // put the spreadsheet data
     //
@@ -224,7 +195,7 @@ var app = new Vue({
         .withSuccessHandler(function() {
           console.log("data PUT"); 
         })
-        .updateSpreadsheet(this.columnMap, this.activeProgramMember, output, this.pw);
+        .updateSpreadsheet(this.activeProgramMember, output);
     },
     //
     // If there's no response to initial text, or they're not interested, hide the rest of the steps
