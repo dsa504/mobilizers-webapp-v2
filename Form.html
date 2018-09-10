@@ -5,11 +5,6 @@
     
     <!-- Vendor Scripts -->
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.js"></script>
-    <script
-      src="https://code.jquery.com/jquery-3.3.1.min.js"
-      integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-      crossorigin="anonymous"
-    ></script>
 
     <!-- Styles -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
@@ -103,19 +98,18 @@
         </md-card-content>
       </md-card>
 
-      <program-member-info
+      <intake-form
         v-if="activeProgramMember"
-      ></program-member-info>
+      ></intake-form>
 
   </div>
+  </div>
+
 </div>
-</div>
-  <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
-  <script src="https://unpkg.com/vue-material@1.0.0-beta-8/dist/vue-material.min.js"></script>
-  <?!= HtmlService.createHtmlOutputFromFile('LoginComponent').getContent(); ?>
-  <?!= HtmlService.createHtmlOutputFromFile('ProgramMemberInfoComponent').getContent(); ?>
-  <?!= HtmlService.createHtmlOutputFromFile('Javascript').getContent(); ?>
-  </body>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+<script src="https://unpkg.com/vue-material@1.0.0-beta-8/dist/vue-material.min.js"></script>
+<?!= HtmlService.createHtmlOutputFromFile('LoginComponent').getContent(); ?>
+<?!= HtmlService.createHtmlOutputFromFile('IntakeFormComponent').getContent(); ?>
+<?!= HtmlService.createHtmlOutputFromFile('Javascript').getContent(); ?>
+</body>
 </html>
-
-

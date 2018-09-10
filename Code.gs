@@ -2,7 +2,6 @@ var SPREADSHEET_ID = 'XXX_spreadsheet_ID_goes_here_XXX';
 var appPw = 'XXX_password_here_XXX';
 var spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
 var worksheet = spreadsheet.getSheets()[0];
-var rows;
 
 var clientPw;
 
@@ -20,7 +19,7 @@ function tryLogin(pw){
 function getSpreadsheet(){
   checkLogin();
 
-  rows = worksheet
+  var rows = worksheet
     .getDataRange()
     .getDisplayValues();
     
@@ -47,8 +46,6 @@ function setStatus(columnMap, row, status){
   
   return status;
 }
-
-
 
 function doGet() {
   var page = HtmlService.createTemplateFromFile('Form');
