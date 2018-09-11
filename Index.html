@@ -35,13 +35,14 @@
         </md-card-header>
       </md-card>
       
-      <!-- <select-program-member
-        v-if="dataLoaded"
-        :mobilizers="mobilizers"
-        :programMembers=""
+      <select-program-member
+        v-if="programMembers.length"
+        v-bind:program-members="programMembers"
+        v-on:program-member-select="onProgramMemberSelect"
+        v-on:mobilizer-select="onMobilizerSelect"
       ></select-program-member>
 
-      <intake-form
+      <!-- <intake-form
         v-if="programMember"
         v-bind="programMember"
       ></intake-form> -->

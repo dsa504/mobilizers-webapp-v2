@@ -33,7 +33,7 @@ var meetingScheduledResponses = [
 // Vue
 // *********
 Vue.use(VueMaterial.default);
-var app = new Vue({
+window.app = new Vue({
   el: '#app',
   components: {
     "login-dialog": window.vueComponents.loginDialog,
@@ -58,57 +58,21 @@ var app = new Vue({
       this.showLogin = false;
       this.getData();
     },
-    getData: function() { 
+    getData: function() {
+      var app = this;
+
       google.script.run
         .withSuccessHandler(function(data) {
-          console.log(data)
-          this.programMembers = data;
-          this.programMembersLoaded = true;
+          app.programMembers = data;
         })
         .getProgramMembers();
     },
-    // put the spreadsheet data
-    //
-    putSpreadsheetData: function(){ 
-      var output = this.formData[this.activeProgramMember];
-      console.log("sending active row: " + this.activeProgramMember);
-      console.log(output);
-      google.script.run
-        .withSuccessHandler(function() {
-          console.log("data PUT"); 
-        })
-        .updateSpreadsheet(this.activeProgramMember, output);
+    onProgramMemberSelect: function (programMember) {
+
     },
-    //
-    // If there's no response to initial text, or they're not interested, hide the rest of the steps
-    //
-    showHideSteps: function(){
-      var initText = this.formData[this.activeProgramMember][columnMap.initialTextResponse.id];
-      if (initText == "Call Scheduled" || initText == "") {
-        this.formOptions.showSteps = true;
-      } else {
-        this.formOptions.showSteps = false;
-      }
+    onMobilizerSelect: function(mobilizer) {
+
     },
-    //
-    // Select a Program Member from the table
-    //
-    onTableSelect: function (item) { 
-      if(typeof item != 'undefined' && item != null){ 
-        this.activeProgramMember = item.id;
-      };
-    },
-    //
-    // Toggle the "Marked as Done" button
-    //
-    doneButtonToggle: function(state) {
-      if( state == "Open"){
-        this.tempData.doneButtonState = "Marked Done";
-      }
-      if( state == "Marked Done"){
-        this.tempData.doneButtonState = "Open";
-      }
-    }
   }
 });
 

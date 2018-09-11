@@ -67,13 +67,13 @@ var internals = {
     }
   },
   // just creates an array of numbers of the specified length:
-  getNumberRange(rangeLength) {
-    var out = [],
+  getNumberRange: function(rangeLength) {
+    var out = [];
     for (var i = 0; i< rangeLength; i++) {
       out.push(i);
     }
     return out;
-  }
+  },
 };
 
 function login(pw) {

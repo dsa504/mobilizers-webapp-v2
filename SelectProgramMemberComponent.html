@@ -24,7 +24,7 @@
           <md-select 
             id="programMembers" 
             name="programMembers" 
-            v-model="activeProgramMember"
+            v-model="selectedProgramMember"
           >
             <md-option v-for="pm in programMembers" :key="pm.name" :value="pm.id">
               {{ pm.name }}
@@ -36,7 +36,6 @@
           id="progressTracker" 
           v-if="selectedMobilizer" 
           v-model="programMembers" 
-          @md-selected="onTableSelect"
         >
           <md-table-row 
             slot="md-table-row" 
@@ -75,13 +74,34 @@
     window.vueComponents.selectProgramMember = {
       template: "#select-program-member",
       props: {
-        programMembers: { type: Array, required: true },
-        mobilizers: { type: Array, required: true } 
+        programMembers: { type: Array, required: true } 
       },
       data: function() { return {
         selectedMobilizer: null,
         selectedProgramMember: null,    
-      }; }
+      }; },
+      methods: {
+      },
+      computed: {
+        mobilizers: function() {
+          return this.$props.programMembers
+            .reduce(function(m, pm) {
+              if (m.indexOf(pm.mobilizer) === -1) 
+                m.push(pm.mobilizer);
+
+              return m;
+            }, [])
+            .sort();
+        }
+      },
+      watch: {
+        selectedProgramMember: function(newVal) {
+          this.$emit("select-program-member", newVal);
+        },
+        selectedMobilizer: function(newVal) {
+          this.$emit("select-mobilizer");
+        }
+      }
     };
   })();
 </script>
