@@ -41,8 +41,8 @@ var app = new Vue({
     "intake-form": window.vueComponents.intakeForm,
   },
   data: {
-    activeProgramMember: "",       
-    dataLoaded: false,         
+    programMembers: [],       
+    programMembersLoaded: false,         
     showLogin: true,
     showSteps: true,
     presets: {
@@ -56,15 +56,16 @@ var app = new Vue({
   methods: {
     onLoginSuccess: function() {
       this.showLogin = false;
+      this.getData();
     },
-    getData: function(){ 
-      console.log("Fetching Data...");
+    getData: function() { 
       google.script.run
         .withSuccessHandler(function(data) {
-          this.formData = data;
-          this.formDataLoaded = true;
+          console.log(data)
+          this.programMembers = data;
+          this.programMembersLoaded = true;
         })
-        .getSpreadsheet();
+        .getProgramMembers();
     },
     // put the spreadsheet data
     //
