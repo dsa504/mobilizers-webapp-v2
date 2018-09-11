@@ -37,146 +37,27 @@ var app = new Vue({
   el: '#app',
   components: {
     "login-dialog": window.vueComponents.loginDialog,
-    "intake-form": window.vueComponents.programMemberInfo
+    "select-program-member": window.vueComponents.selectProgramMember,
+    "intake-form": window.vueComponents.intakeForm,
   },
   data: {
-    activeMobilizer: "",           // int - key value of the currently active mobilizer in mobilizers[]
-    activeProgramMember: "",       // int - key of row in formData[] we're editing
-    formData: "",                  // data from spreadsheet (this is the data we're modifying with the form)
-    formDataLoaded: false,         // flag indicated we've pulled the spreadsheet data
-    formOptions: {
+    activeProgramMember: "",       
+    dataLoaded: false,         
+    showLogin: true,
+    showSteps: true,
+    presets: {
       initialTextResponses: initialTextResponses,
       programsAndCommittees: programsAndCommittees,
       meetingScheduledResponses: meetingScheduledResponses,
-      showSteps: true,
-      showLogin: true,
-      showLoginError: false,
-    },
-    tempData: {                   // note: bc Vue Material will only treat checkboxes correctly if the v-model field is an array, 
-       interests: [],             // we use tempData.interests as a intermediate variable between the form and formData
-       doneButtonState: ""
-    }
-  },
-  computed: {
-    //
-    // get an array of all the mobilizers from formData
-    //
-    mobilizers: {
-      get: function() { 
-        return this.formData.map(function (d) {
-          d[columnMap['mobName'].id]
-        });
-      },
-      set: function(val){
-        return val;
-      }
-    },
-    //
-    // get an array of program members assigned to the active mobilizer from formData
-    //
-    programMembers:{
-      get: function() { 
-        return this.formData
-          .filter(function(d){ 
-            return d.columnMap.mobName.id === this.activeMobilizer
-          })
-          .map(function(d, i) {
-            return {
-              name: d[columnMap.pmName.id],
-              id:i,
-              textSent : d[columnMap.initialTextSent].id === true,
-              callAttempted : d[columnMap.callMade].id !== "",
-              sentFollowup: d[columnMap.followupTextSent].id === true,
-              attended: d[columnMap.attendedMeetup].id === true
-             };
-          });
-      },
-      set: function(val){
-        return val;
-      }
-    },
-    //
-    // get the details for the active program member from formData, for the program member details "contact card"
-    //
-    activeProgramMemberData:function(){ 
-      var assignedDate = this.formData[this.activeProgramMember][columnMap.pmAssignedDate.id];
-      var dueDate = moment(assignedDate).add(7, 'days').format('MM/DD/YYYY');
-      var pmData = {
-        name : this.formData[this.activeProgramMember][columnMap.pmName.id],
-        phone : this.formData[this.activeProgramMember][columnMap.pmPhone.id],
-        email : this.formData[this.activeProgramMember][columnMap.pmEmail.id],
-        assigned : assignedDate,
-        due : dueDate,
-        status : this.formData[this.activeProgramMember][columnMap.pmAssignedStatus.id]
-      }
-      return pmData;
     },
   },
-  watch: {
-    activeProgramMember: function(){ 
-      if(this.activeProgramMember !== ""){
-        console.log("Editing Row: " + this.activeProgramMember);
-        
-        // Vue Material hacks, see note in data
-        var interests = this.formData[this.activeProgramMember][columnMap.interests.id];
-        if(interests != ''){
-          this.tempData.interests = JSON.parse(this.formData[this.activeProgramMember][columnMap.interests.id]);
-        } else {
-          this.tempData.interests = [];
-        }
-        
-        this.tempData.doneButtonState = this.formData[this.activeProgramMember][columnMap.pmAssignedStatus.id];
-        
-      }
-    },
-    activeMobilizer: function(){
-      this.activeProgramMember = ''; // reset activeProgramMember when we change mobilizers
-    },
-    //
-    // Vue Materal semi-hacks, see note above
-    //
-    tempData: {
-      interests: function(){
-        this.formData[this.activeProgramMember][columnMap.interests.id] = JSON.stringify(this.tempData.interests);
-        if(this.formDataLoaded){
-          this.putSpreadsheetData();
-        }
-      },
-      doneButtonState: function(){
-        var status = this.tempData.doneButtonState;
-        console.log(status);
-        if( status == "Open"){
-          this.formData[this.activeProgramMember][columnMap.pmAssignedStatus.id] = "Open";
-        }
-        if( status == "Marked Done"){
-          this.formData[this.activeProgramMember][columnMap.pmAssignedStatus.id] = "Marked Done";
-        }
-        if(this.formDataLoaded){
-          this.putSpreadsheetData();
-        }
-      },
-    },
-    ///
-    /// on change, push the data to the spreadsheet
-    ///
-    formData: function() { 
-        if(this.activeProgramMember != 'undefined' && this.activeProgramMember != null && this.activeProgramMember != ""){
-          this.showHideSteps(); // If there's no response to initial text, or they're not interested, hide the rest of the steps
-          if(this.formDataLoaded){
-            this.putSpreadsheetData();
-          }
-        }
-    },
-  },
+  computed: {},
+  watch: {},
   methods: {
-    onLoginSuccess: function(pw) {
-      this.pw = pw;
-      this.showLogin = false;
+    onLoginSuccess: function() {
+      showLogin = false;
     },
-    //
-    // get the spreadsheet data
-    //
-    getSpreadsheetData: function(){ 
+    getData: function(){ 
       console.log("Fetching Data...");
       google.script.run
         .withSuccessHandler(function(data) {

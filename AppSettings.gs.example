@@ -1,0 +1,6 @@
+function getAppSettings() {
+  return {
+    spreadsheetId: "",
+    appPassword: "",
+  }
+};

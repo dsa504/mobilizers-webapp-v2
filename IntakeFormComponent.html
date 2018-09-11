@@ -40,7 +40,11 @@
         <div class="response_text">Program Member Response:</div>
         <md-field>
           <md-select v-model="formData[activeProgramMember][columnMap['initial_text_response'].id]">
-            <md-option v-for="initial_text_opt in formOptions.initialTextResponses" :key="initial_text_opt" :value="initial_text_opt">{{ initial_text_opt }}</md-option>
+            <md-option 
+              v-for="response in presets.initialTextResponses" 
+              :key="response" 
+              :value="response"
+            >{{ initial_text_opt }}</md-option>
           </md-select>
         </md-field>
       </md-card-content>
@@ -230,7 +234,8 @@
     window.vueComponents.intakeForm = {
       template: "#intake-form",
       props: {
-        programMember: {type: Object, required: true},
+        presets: { type: Object, required: true },
+        programMember: { type: Object, required: true },
       },
       data: function() { return {
         programMemberInfo: {},

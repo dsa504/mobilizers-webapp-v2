@@ -1,0 +1,87 @@
+<template id="select-program-member">
+  <div class="select-program-member">
+    <md-card>
+      <md-card-content style="padding-bottom:0px;">
+        <div>
+          Please select your name to get started!
+        </div>
+        
+        <md-field>
+          <label for="mobilizers">Mobilizer</label>
+          <md-select name="mobilizers" id="mobilizers" v-model="selectedMobilizer">  
+            <md-option v-for="m in mobilizers" :key="m" :value="m">
+              {{ m }}
+            </md-option>
+          </md-select>
+        </md-field>
+      </md-card-content>
+    </md-card>
+    
+    <md-card v-if="selectedMobilizer">
+      <md-card-content style="padding-bottom:20px;padding-top:0px;">
+        <md-field>
+          <label for="programMembers">Program Member</label>
+          <md-select 
+            id="programMembers" 
+            name="programMembers" 
+            v-model="activeProgramMember"
+          >
+            <md-option v-for="pm in programMembers" :key="pm.name" :value="pm.id">
+              {{ pm.name }}
+            </md-option>
+          </md-select>
+        </md-field>
+      
+        <md-table 
+          id="progressTracker" 
+          v-if="selectedMobilizer" 
+          v-model="programMembers" 
+          @md-selected="onTableSelect"
+        >
+          <md-table-row 
+            slot="md-table-row" 
+            slot-scope="{ item }" 
+            md-selectable="single" 
+            class="md-primary"
+          >
+          <md-table-cell md-label="Program Member" class="firstCol">{{ item.name }}</md-table-cell>
+          <md-table-cell md-label="Text?">
+            <md-icon v-if="item.textSent" style="color:green">check_circle_outline</md-icon>
+            <md-icon v-if="!item.textSent" style="opacity:.3">highlight_off</md-icon>
+          </md-table-cell>
+          <md-table-cell md-label="Call?">
+            <md-icon v-if="item.callAttempted" style="color:green">check_circle_outline</md-icon>
+            <md-icon v-if="!item.callAttempted" style="opacity:.3">highlight_off</md-icon>
+          </md-table-cell>
+          <md-table-cell md-label="Followup?">
+            <md-icon v-if="item.sentFollowup" style="color:green">check_circle_outline</md-icon>
+            <md-icon v-if="!item.sentFollowup" style="opacity:.3">highlight_off</md-icon>
+          </md-table-cell>
+          <md-table-cell md-label="Meetup?">
+            <md-icon v-if="item.attended" style="color:green">check_circle_outline</md-icon>
+            <md-icon v-if="!item.attended" style="opacity:.3">highlight_off</md-icon>
+          </md-table-cell>
+        </md-table-row>
+        </md-table>
+      </md-card-content>
+    </md-card>
+  </div>
+</template>
+
+<script>
+  (function () {
+    window.vueComponents = window.vueComponents || {};
+    
+    window.vueComponents.selectProgramMember = {
+      template: "#select-program-member",
+      props: {
+        programMembers: { type: Array, required: true },
+        mobilizers: { type: Array, required: true } 
+      },
+      data: function() { return {
+        selectedMobilizer: null,
+        selectedProgramMember: null,    
+      }; }
+    };
+  })();
+</script>

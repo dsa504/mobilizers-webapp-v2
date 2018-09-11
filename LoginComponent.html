@@ -1,8 +1,9 @@
 <template id="login-dialog">
   <md-dialog 
-    :md-active.sync="formOptions.showLogin" 
+    :md-active.sync="show" 
     :md-close-on-esc="false" 
     :md-click-outside-to-close="false"
+    v-on:keypress="onKeyPress"
   >
     <md-dialog-title>Please Log In</md-dialog-title>
     <md-dialog-content>
@@ -12,13 +13,13 @@
       </md-field>
     </md-dialog-content>
     <md-dialog-actions>
-      <md-button @click="attemptLogin">Login</md-button>
+      <md-button @click="login">Login</md-button>
     </md-dialog-actions>
 
     <md-snackbar 
       id="login-snackbar" 
       :md-duration="2000" 
-      :md-active.sync="showLoginError"
+      :md-active.sync="showError"
     >
       <span style="color:yellow">ಠ_ಠ</span>
       <span>Incorrect Password!</span>
@@ -27,27 +28,33 @@
 </template>
 
 <script>
-  (function(){
+  (function() {
     window.vueComponents = window.vueComponents || {};
 
     window.vueComponents.loginDialog = {
       template: "#login-dialog",
+      props: {
+        show: {type: Boolean, required: true },
+      },
       data: function() { return {
         pw: "",
-        showLoginError: false,
+        showError: false,
       }},
       methods: {
-        attemptLogin: function() {
+        login: function() {
           google.script.run
           .withSuccessHandler(function(data) {
-            if(data !== "OK") return this.showLoginError = true;
+            if(data !== "OK") return this.showError = true;
             
             if (data === "OK") this.$emit("login-succes", this.pw);   
           })
-          .tryLogin( this.pw );
+          .login( this.pw );
+        },
+        onKeyPress: function(e) {
+          // detect enter key
+          if (e.keyCode === 13) this.attemptLogin();
         },
       }
     };
   })();
-  
 </script>
