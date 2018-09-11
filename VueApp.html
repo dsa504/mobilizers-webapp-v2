@@ -55,7 +55,7 @@ var app = new Vue({
   watch: {},
   methods: {
     onLoginSuccess: function() {
-      showLogin = false;
+      this.showLogin = false;
     },
     getData: function(){ 
       console.log("Fetching Data...");

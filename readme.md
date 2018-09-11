@@ -12,4 +12,15 @@ This is a webapp for tracking progress of mobilizers in activating new members.
 
 ## Setup
 
-Push this repo to your project. In the web interface, copy `AppSettings.gs.example` as `AppSettings.gs` and fill in your spreadsheet id and password.
+Push this repo to your project. In the web interface, create `AppSettings.gs` with the follwing contents:
+
+```javascript
+function getAppSettings() {
+  return {
+    spreadsheetId: "",
+    appPassword: "",
+  }
+};
+```
+
+Fill in your spreadsheet ID and a password you mobilizers can use to login.

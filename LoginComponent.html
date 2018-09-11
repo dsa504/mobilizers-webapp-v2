@@ -11,19 +11,14 @@
         <label>Password</label>
         <md-input v-model="pw" type="password"></md-input>
       </md-field>
+      <div v-bind:style="errorStyle">
+        <span style="color: darkorange">ಠ_ಠ</span>
+        <span>Incorrect Password!</span>
+      </div>
     </md-dialog-content>
     <md-dialog-actions>
       <md-button @click="login">Login</md-button>
     </md-dialog-actions>
-
-    <md-snackbar 
-      id="login-snackbar" 
-      :md-duration="2000" 
-      :md-active.sync="showError"
-    >
-      <span style="color:yellow">ಠ_ಠ</span>
-      <span>Incorrect Password!</span>
-    </md-snackbar>
   </md-dialog>
 </template>
 
@@ -42,18 +37,29 @@
       }},
       methods: {
         login: function() {
+          var component = this;
+
           google.script.run
           .withSuccessHandler(function(data) {
-            if(data !== "OK") return this.showError = true;
+            if(data !== "OK") return component.showError = true;
             
-            if (data === "OK") this.$emit("login-succes", this.pw);   
+            if (data === "OK") component.$emit("login-success");   
           })
           .login( this.pw );
         },
         onKeyPress: function(e) {
           // detect enter key
-          if (e.keyCode === 13) this.attemptLogin();
+          if (e.keyCode === 13) this.login();
+
+          if (this.pw.length < 3) this.showError = false;
         },
+      },
+      computed: {
+        errorStyle: function() {
+          return {
+            opacity: (this.showError) ? 1 : 0,
+          }
+        }
       }
     };
   })();
