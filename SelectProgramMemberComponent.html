@@ -7,61 +7,59 @@
         </div>
         
         <md-field>
-          <label for="mobilizers">Mobilizer</label>
-          <md-select name="mobilizers" id="mobilizers" v-model="selectedMobilizer">  
-            <md-option v-for="m in mobilizers" :key="m" :value="m">
-              {{ m }}
+          <label for="mobilizers">Mobilizer</label> 
+          <md-select name="mobilizers" id="mobilizers" v-model="selectedMobilizerName">  
+            <md-option v-for="mn in mobilizerNames" :key="mn" :value="mn">
+              {{ mn }}
             </md-option>
           </md-select>
         </md-field>
       </md-card-content>
     </md-card>
     
-    <md-card v-if="selectedMobilizer">
+    <md-card v-if="selectedMobilizerName">
       <md-card-content style="padding-bottom:20px;padding-top:0px;">
         <md-field>
           <label for="programMembers">Program Member</label>
           <md-select 
             id="programMembers" 
             name="programMembers" 
-            v-model="selectedProgramMember"
+            v-model="selectedProgramMemberId"
           >
-            <md-option v-for="pm in programMembers" :key="pm.name" :value="pm.id">
+            <md-option v-for="pm in assignedMembers" :key="pm.name" :value="pm.id">
               {{ pm.name }}
             </md-option>
           </md-select>
         </md-field>
       
-        <md-table 
-          id="progressTracker" 
-          v-if="selectedMobilizer" 
-          v-model="programMembers" 
+        <table 
+          v-if="selectedMobilizerName" 
         >
-          <md-table-row 
-            slot="md-table-row" 
-            slot-scope="{ item }" 
-            md-selectable="single" 
+          <tr 
             class="md-primary"
+            v-for="pm of assignedMembers"
+            v-key="pm.id"
+            v-on:click="selectedProgramMemberId = pm.id"
           >
-          <md-table-cell md-label="Program Member" class="firstCol">{{ item.name }}</md-table-cell>
-          <md-table-cell md-label="Text?">
-            <md-icon v-if="item.textSent" style="color:green">check_circle_outline</md-icon>
-            <md-icon v-if="!item.textSent" style="opacity:.3">highlight_off</md-icon>
-          </md-table-cell>
-          <md-table-cell md-label="Call?">
-            <md-icon v-if="item.callAttempted" style="color:green">check_circle_outline</md-icon>
-            <md-icon v-if="!item.callAttempted" style="opacity:.3">highlight_off</md-icon>
-          </md-table-cell>
-          <md-table-cell md-label="Followup?">
-            <md-icon v-if="item.sentFollowup" style="color:green">check_circle_outline</md-icon>
-            <md-icon v-if="!item.sentFollowup" style="opacity:.3">highlight_off</md-icon>
-          </md-table-cell>
-          <md-table-cell md-label="Meetup?">
-            <md-icon v-if="item.attended" style="color:green">check_circle_outline</md-icon>
-            <md-icon v-if="!item.attended" style="opacity:.3">highlight_off</md-icon>
-          </md-table-cell>
-        </md-table-row>
-        </md-table>
+          <td md-label="Program Member" class="firstCol">{{ pm.name }}</td>
+          <td md-label="Text?">
+            <md-icon v-if="pm.textSent" style="color:green">check_circle_outline</md-icon>
+            <md-icon v-if="!pm.textSent" style="opacity:.3">highlight_off</md-icon>
+          </td>
+          <td md-label="Call?">
+            <md-icon v-if="pm.callAttempted" style="color:green">check_circle_outline</md-icon>
+            <md-icon v-if="!pm.callAttempted" style="opacity:.3">highlight_off</md-icon>
+          </td>
+          <td md-label="Followup?">
+            <md-icon v-if="pm.sentFollowup" style="color:green">check_circle_outline</md-icon>
+            <md-icon v-if="!pm.sentFollowup" style="opacity:.3">highlight_off</md-icon>
+          </td>
+          <td md-label="Meetup?">
+            <md-icon v-if="pm.attended" style="color:green">check_circle_outline</md-icon>
+            <md-icon v-if="!pm.attended" style="opacity:.3">highlight_off</md-icon>
+          </td>
+        </tr>
+      </table>
       </md-card-content>
     </md-card>
   </div>
@@ -77,13 +75,18 @@
         programMembers: { type: Array, required: true } 
       },
       data: function() { return {
-        selectedMobilizer: null,
-        selectedProgramMember: null,    
+        selectedMobilizerName: null,
+        selectedProgramMemberId: null,    
       }; },
       methods: {
+        onMemberSelect: function(m) {
+          if (!m) return;
+
+          this.selectedProgramMemberId = m.id;
+        }
       },
       computed: {
-        mobilizers: function() {
+        mobilizerNames: function() {
           return this.$props.programMembers
             .reduce(function(m, pm) {
               if (m.indexOf(pm.mobilizer) === -1) 
@@ -92,14 +95,28 @@
               return m;
             }, [])
             .sort();
-        }
+        },
+        selectedProgramMember: function() {
+          var component = this;
+          return this.programMembers
+            .find(function(pm) {
+              pm.id === component.selectedProgramMemberId;
+            });
+        },
+        assignedMembers: function() {
+          var component = this;
+          return this.$props.programMembers
+            .filter(function(pm) {
+              return pm.mobilizer === component.selectedMobilizerName; 
+            });
+        },
       },
       watch: {
         selectedProgramMember: function(newVal) {
           this.$emit("select-program-member", newVal);
         },
-        selectedMobilizer: function(newVal) {
-          this.$emit("select-mobilizer");
+        selectedMobilizerName: function(newVal) {
+          this.$emit("select-mobilizer", newVal);
         }
       }
     };
