@@ -1,9 +1,6 @@
 <template id="intake-form">
-  <form 
-    class="intake-form" 
-    v-bind:class="{ active: (this.activeProgramMember !== '') }" 
-  >
-    <md-card class="login-card" v-if="activeProgramMember">
+  <form class="intake-form active" v-on:input="onPmChange">
+    <md-card class="login-card">
       <md-toolbar :md-elevation="1">
         <md-icon>face</md-icon>
         <span class="md-title">Program Member Details</span>
@@ -11,14 +8,14 @@
       <md-card-content>
         <div class="pm_details">
           <ul class="mdl-list">
-            <li><b>Name: {{ programMember.name }}</b></li>
-            <li>Phone: {{ programMember.phone }}</li>
-            <li>Email: {{ programMember.email }}</li>
+            <li><b>Name: {{ pm.name }}</b></li>
+            <li>Phone: {{ pm.phone }}</li>
+            <li>Email: {{ pm.email }}</li>
           </ul>
           <ul class="mdl-list">
-            <li>Assigned Date: {{ programMember.assigned }}</li>
-            <li>Due Date: <b>{{ programMember.due }}</b></li>
-            <li>Status: {{ programMember.status }}</li>
+            <li>Assigned Date: {{ pm.assigned }}</li>
+            <li>Due Date: <b>{{ pm.due }}</b></li>
+            <li>Status: {{ pm.status }}</li>
           </ul>
         </div>
       </md-card-content>
@@ -30,32 +27,32 @@
       </md-toolbar>
       <md-card-content>
         <div class="speech-bubble-text">
-          "Hi <b>{{ programMember.name }}</b>! This is <b>{{ formData[this.activeProgramMember][columnMap["mob_name"].id] }}</b> from New Orleans DSA. We got your info from our site and we'd love to talk to you. Do you have time today or soon for a phone call?"
+          "Hi <b>{{ pm.name }}</b>! This is <b>{{ pm.mobilizer }}</b> from New Orleans DSA. We got your info from our site and we'd love to talk to you. Do you have time today or soon for a phone call?"
         </div>
         
         <div class="checkbox_wrap">
-          <md-checkbox v-model="formData[activeProgramMember][columnMap['initial_text_sent'].id]" :value="true">Text Sent?</md-checkbox>
+          <md-checkbox v-model="pm.initalTextSent" :value="true">Text Sent?</md-checkbox>
         </div>
         
         <div class="response_text">Program Member Response:</div>
         <md-field>
-          <md-select v-model="formData[activeProgramMember][columnMap['initial_text_response'].id]">
+          <md-select v-model="pm.initialTextResponse">
             <md-option 
               v-for="response in presets.initialTextResponses" 
               :key="response" 
               :value="response"
-            >{{ initial_text_opt }}</md-option>
+            >{{ response }}</md-option>
           </md-select>
         </md-field>
       </md-card-content>
     </md-card>
   
-    <md-card class="step_box" v-if="formOptions.showSteps">
+    <md-card class="step_box" v-if="showSteps">
       <md-toolbar :md-elevation="1">
         <span class="md-title">Intake Call</span>
       </md-toolbar>
       <md-card-content>
-        <h3>“Hi, is this <b>{{ programMember.name }}</b>?”</h3>
+        <h3>“Hi, is this <b>{{ pm.name }}</b>?”</h3>
         <div class="response_text">Program Member Response:</div>
         <md-radio v-model="programMemberInfo.callMade" value="Yup!">Yup!</md-radio>
         <md-radio v-model="programMemberInfo.callMade" value="No Answer/Left Message">No Answer/Left Message</md-radio>
@@ -66,7 +63,7 @@
       <md-card-content>
         <h3>Introduce yourself</h3>
         <div class="speech-bubble">
-          “This is <b>{{ programMember.mobName }}</b> from the DSA New Orleans mobilizers program - I’ve been assigned to you though the program, to act as a point of contact for you to DSA New Orleans, to answer any questions you might have, and help you get involved. First though I’ve just got a couple quick questions, if that’s cool?”
+          “This is <b>{{ pm.mobilizer }}</b> from the DSA New Orleans mobilizers program - I’ve been assigned to you though the program, to act as a point of contact for you to DSA New Orleans, to answer any questions you might have, and help you get involved. First though I’ve just got a couple quick questions, if that’s cool?”
         </div>
       </md-card-content>
       
@@ -80,11 +77,11 @@
         <div class="response_text">Program Member Response:</div>
         <md-field>
           <label for="pronoun">Enter Pronoun</label>
-          <md-input id="pronoun" v-model="programMember.pronoun"></md-input>
+          <md-input id="pronoun" v-model="pm.pronoun"></md-input>
         </md-field>
         <md-field>
           <label for="occupation">Enter Occupation</label>
-          <md-input id="occupation" v-model="programMember.occupation"></md-input>
+          <md-input id="occupation" v-model="pm.occupation"></md-input>
         </md-field>
       </md-card-content>
       
@@ -97,7 +94,7 @@
         </div>
         <div class="response_text">Program Member Response:</div>
         <md-checkbox 
-          v-for="interest in formOptions.programsAndCommittees" 
+          v-for="interest in presets.programsAndCommittees" 
           :key="interest" 
           :value="interest" 
           v-model="tempData.interests"  
@@ -117,7 +114,7 @@
           <label for="skills">Enter Skills\Resources</label>
           <md-textarea 
           id="skills" 
-          v-model="programMember.skills"
+          v-model="pm.skills"
           ></md-textarea>   
         </md-field>
       </md-card-content>
@@ -148,32 +145,32 @@
         </div>
         <div class="response_text">Program Member Response:</div>
         <md-field>
-          <md-select v-model="programMember.meetupScheduled">
-            <md-option v-for="schedule_opt in formOptions.meetingScheduledResponses" :key="schedule_opt" :value="schedule_opt">{{ schedule_opt }}</md-option>
+          <md-select v-model="pm.meetupScheduled">
+            <md-option v-for="opt in presets.meetingScheduledResponses" :key="opt" :value="opt">{{ opt }}</md-option>
           </md-select>
         </md-field>
         <md-field>
-          <label for="meetup_event">Enter Event {{programMember.name}} Says They'll Attend</label>
-          <md-input v-model="programMember.meetupEvent" placeholder='Enter Meetup Event'></md-input>
+          <label for="meetup_event">Enter Event {{pm.name}} Says They'll Attend</label>
+          <md-input v-model="pm.meetupEvent" placeholder='Enter Meetup Event'></md-input>
         </md-field>
         <div class="speech-bubble">"Bye, and thanks for your time!"</div>
       </md-card-content>
     </md-card>
   
-    <md-card class="step_box" v-if="formOptions.showSteps">
+    <md-card class="step_box" v-if="showSteps">
       <md-toolbar :md-elevation="1">
         <span class="md-title">Followup Text</span><br/>
         <span class="md-subhead">(Send 24-48 hours after intake call)</span>
       </md-toolbar>
       <md-card-content>
         <div class="speech-bubble-text">
-          “Hey <b>{{programMember.name}}</b> - was really nice talking to you the other day, just wanted to follow up to make sure you had the details of our <b>[social/general]: [location/date/time]</b>. Hope to see you there!"
+          “Hey <b>{{pm.name}}</b> - was really nice talking to you the other day, just wanted to follow up to make sure you had the details of our <b>[social/general]: [location/date/time]</b>. Hope to see you there!"
         </div>
-        <md-checkbox v-model="programMember.followupTextSent" :value="true">Text Sent?</md-checkbox>
+        <md-checkbox v-model="pm.followupTextSent" :value="true">Text Sent?</md-checkbox>
       </md-card-content>
     </md-card>
   
-    <md-card class="step_box" v-if="formOptions.showSteps">
+    <md-card class="step_box" v-if="showSteps">
       <md-toolbar :md-elevation="1">
         <span class="md-title">Meetup</span>
       </md-toolbar>
@@ -189,9 +186,9 @@
           <li><b>Answer any questions</b>; if you’re not sure, note and contact #mobilizerdesk (or ask around the event- if the question is pertinent to a specific committee or project, it can be an opportunity to introduce the program member to a active member.)</li>
         </ul>
         <div class="response_text">Please check the following:</div>
-        <md-checkbox v-model="programMember.attendedMeetup" :value="true">Attended General or Social</md-checkbox>
-        <md-checkbox v-model="programMember.metPm" :value="true"> Met <b>{{ programMember.name}}</b></md-checkbox>
-        <md-checkbox v-model="programMember.addToSlack" :value="true">Add <b>{{ programMember.name}}</b> to Slack</md-checkbox>
+        <md-checkbox v-model="pm.attendedMeetup" :value="true">Attended General or Social</md-checkbox>
+        <md-checkbox v-model="pm.metPm" :value="true"> Met <b>{{ pm.name}}</b></md-checkbox>
+        <md-checkbox v-model="pm.addToSlack" :value="true">Add <b>{{ pm.name}}</b> to Slack</md-checkbox>
       </md-card-content>
     </md-card>
   
@@ -206,10 +203,10 @@
         <md-switch 
           id="mark_as_done" 
           class="md-raised"
-          v-model="programMember.done" 
+          v-model="pm.done" 
         >
-          <span v-if="!programMember.done">Mark as Done</span>
-          <span v-if="programMember.done">Marked Done</span>
+          <span v-if="!pm.done">Mark as Done</span>
+          <span v-if="pm.done">Marked Done</span>
         </md-switch>
       </md-card-actions>
     </md-card>
@@ -220,7 +217,7 @@
       </md-toolbar>
       <md-card-content>
         <div style="padding-bottom:20px;">If at any point the person you're mobilizing makes you uncomfortable, or if you suspect they may be an infiltrator, cop or other bad actor, please stop the process and click the checkbox below!</div>
-        <md-checkbox v-model="programMember.sketch" :value="true" class="md-accent"><b>Mark as Sketch</b></md-checkbox>
+        <md-checkbox v-model="pm.sketch" :value="true" class="md-accent"><b>Mark as Sketch</b></md-checkbox>
       </md-card-content>
     </md-card>
 
@@ -231,15 +228,71 @@
   (function() {
     window.vueComponents = window.vueComponents || {};
 
+    function copyArray(arr) {
+      return arr.reduce(function(m, el) {
+        m.push(el);
+
+        return m;
+      }, []);
+    }
+
+    function absorbObjValues(targetObj, sourceObj) {
+      var sourceKeys = Object.keys(sourceObj);
+      for (var i = 0; i < sourceKeys.length; i++) {
+          var k = sourceKeys[i];
+          targetObj[k] = (Array.isArray(sourceObj[k])) 
+            ? copyArray(sourceObj[k]) 
+            : sourceObj[k];
+      }
+    }
+
     window.vueComponents.intakeForm = {
       template: "#intake-form",
       props: {
         presets: { type: Object, required: true },
-        programMember: { type: Object, required: true },
+        // external program member object. don't change this one:
+        programMember: { type: Object, required: true }, 
       },
       data: function() { return {
-        programMemberInfo: {},
+        // internal program member representation. this is the one we actually use:
+        pm: {},
       };},
+      methods: {
+        onPmChange: function(e) {
+          console.log(e);
+        },
+      },
+      computed: {
+        showSteps: function() {
+          return this.pm.done || this.pm.sketch;
+        },
+      },
+      watch: {
+        programMember: function(newVal, oldVal) {
+          if (newVal === oldVal)
+
+          // prevent mutating data on this component's parent Vue instance:
+          absorbObjValues(this.pm, this.programMember);
+        },
+      },
+      beforeCreate: function() {
+        absorbObjValues(this.pm, this.programMember);
+      },
+      created: function() {
+        var component = this;
+        var pmKeys = Object.keys(this.pm);
+
+        for (var i = 0; i < pmKeys.length; i++) {
+          var k = pmKeys[i];
+
+          this.$watch("pm." + k, function(newVal, oldVal) {
+            if (newVal === oldVal) return;
+            
+            // let the parent Vue instance know what changed:
+            component.$emit("program-member-change", component.pm.id, k, newVal);
+          });
+        }
+      },
     };
 
   })();

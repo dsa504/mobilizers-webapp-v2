@@ -1,4 +1,6 @@
 <script>
+(function(){
+
 //
 // Field options
 //
@@ -29,6 +31,25 @@ var meetingScheduledResponses = [
   //"Other",
 ];
 
+// Returns a function, that, as long as it continues to be invoked, will not
+// be triggered. The function will be called after it stops being called for
+// N milliseconds. If `immediate` is passed, trigger the function on the
+// leading edge, instead of the trailing.
+function debounce(func, wait, immediate) {
+	var timeout;
+	return function() {
+		var context = this, args = arguments;
+		var later = function() {
+			timeout = null;
+			if (!immediate) func.apply(context, args);
+		};
+		var callNow = immediate && !timeout;
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+		if (callNow) func.apply(context, args);
+	};
+};
+
 // *********
 // Vue
 // *********
@@ -42,9 +63,9 @@ window.app = new Vue({
   },
   data: {
     programMembers: [],       
-    programMembersLoaded: false,         
     showLogin: true,
     showSteps: true,
+    selectedProgramMember: null,
     presets: {
       initialTextResponses: initialTextResponses,
       programsAndCommittees: programsAndCommittees,
@@ -52,13 +73,17 @@ window.app = new Vue({
     },
   },
   computed: {},
-  watch: {},
+  watch: {
+    selectedProgramMember: function() {
+
+    }
+  },
   methods: {
     onLoginSuccess: function() {
       this.showLogin = false;
-      this.getData();
+      this.getProgramMembers();
     },
-    getData: function() {
+    getProgramMembers: function() {
       var app = this;
 
       google.script.run
@@ -67,13 +92,22 @@ window.app = new Vue({
         })
         .getProgramMembers();
     },
+    updateProgramMember: debounce(function() {
+      console.log(this.selectedProgramMember);
+    }, 500),
     onProgramMemberSelect: function (programMember) {
-
+      console.log(programMember);
+      this.selectedProgramMember = programMember;
     },
-    onMobilizerSelect: function(mobilizer) {
+    onProgramMemberChange: function(memberId, key, newVal) {
+      if (!selectedProgramMember) return;
 
+      this.selectedProgramMember[key] = newVal;
     },
   }
 });
+
+})();
+
 
 </script>

@@ -31,7 +31,6 @@
             </md-option>
           </md-select>
         </md-field>
-        
         <md-table id="progressTracker" v-if="selectedMobilizerName" v-model="assignedMembers" @md-selected="onMemberSelect">
           <md-table-row  slot="md-table-row" slot-scope="{ item }" md-selectable="single" class="md-primary">
             <md-table-cell md-label="Program Member" class="firstCol">{{ item.name }}</md-table-cell>
@@ -53,8 +52,6 @@
             </md-table-cell>
           </md-table-row>
         </md-table>
-        
-        
       </md-card-content>
     </md-card>
   </div>
@@ -71,7 +68,8 @@
       },
       data: function() { return {
         selectedMobilizerName: "",
-        selectedProgramMemberId: null,    
+        selectedProgramMemberId: null,
+        selectedProgramMember: null,    
       }; },
       methods: {
         onMemberSelect: function(m) {
@@ -91,13 +89,6 @@
             }, [])
             .sort();
         },
-        selectedProgramMember: function() {
-          var component = this;
-          return this.programMembers
-            .find(function(pm) {
-              pm.id === component.selectedProgramMemberId;
-            });
-        },
         assignedMembers: function() {
           var component = this;
           return this.$props.programMembers
@@ -107,11 +98,26 @@
         },
       },
       watch: {
-        selectedProgramMember: function(newVal) {
-          this.$emit("select-program-member", newVal);
+        selectedProgramMember: function(newVal, oldVal) {
+          if (newVal === oldVal) return;
+
+          this.$emit("program-member-select", newVal);
         },
-        selectedMobilizerName: function(newVal) {
-          this.$emit("select-mobilizer", newVal);
+        selectedMobilizerName: function(newVal, oldVal) {
+          if (newVal === oldVal) return;
+
+          this.selectedProgramMemberId = null;
+        },
+        selectedProgramMemberId: function(newVal, oldVal) {
+          if (newVal === oldVal) return;
+          
+          if (!newVal) return;
+
+          var component = this;
+          this.selectedProgramMember = this.assignedMembers
+            .find(function(pm) {
+              return pm.id === newVal;
+            });
         }
       }
     };
