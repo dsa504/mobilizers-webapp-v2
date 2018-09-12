@@ -31,35 +31,10 @@
             </md-option>
           </md-select>
         </md-field>
-      
-        <table 
-          v-if="selectedMobilizerName" 
-        >
-          <tr 
-            class="md-primary"
-            v-for="pm of assignedMembers"
-            v-key="pm.id"
-            v-on:click="selectedProgramMemberId = pm.id"
-          >
-          <td md-label="Program Member" class="firstCol">{{ pm.name }}</td>
-          <td md-label="Text?">
-            <md-icon v-if="pm.textSent" style="color:green">check_circle_outline</md-icon>
-            <md-icon v-if="!pm.textSent" style="opacity:.3">highlight_off</md-icon>
-          </td>
-          <td md-label="Call?">
-            <md-icon v-if="pm.callAttempted" style="color:green">check_circle_outline</md-icon>
-            <md-icon v-if="!pm.callAttempted" style="opacity:.3">highlight_off</md-icon>
-          </td>
-          <td md-label="Followup?">
-            <md-icon v-if="pm.sentFollowup" style="color:green">check_circle_outline</md-icon>
-            <md-icon v-if="!pm.sentFollowup" style="opacity:.3">highlight_off</md-icon>
-          </td>
-          <td md-label="Meetup?">
-            <md-icon v-if="pm.attended" style="color:green">check_circle_outline</md-icon>
-            <md-icon v-if="!pm.attended" style="opacity:.3">highlight_off</md-icon>
-          </td>
-        </tr>
-      </table>
+        
+        
+        
+        
       </md-card-content>
     </md-card>
   </div>
