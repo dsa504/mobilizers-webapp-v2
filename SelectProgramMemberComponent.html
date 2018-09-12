@@ -32,7 +32,27 @@
           </md-select>
         </md-field>
         
-        
+        <md-table id="progressTracker" v-if="selectedMobilizerName" v-model="assignedMembers" @md-selected="onMemberSelect">
+          <md-table-row  slot="md-table-row" slot-scope="{ item }" md-selectable="single" class="md-primary">
+            <md-table-cell md-label="Program Member" class="firstCol">{{ item.name }}</md-table-cell>
+            <md-table-cell md-label="Text?">
+              <md-icon v-if="item.textSent" style="color:green">check_circle_outline</md-icon>
+              <md-icon v-if="!item.textSent" style="opacity:.3">highlight_off</md-icon>
+            </md-table-cell>
+            <md-table-cell md-label="Call?">
+              <md-icon v-if="item.callAttempted" style="color:green">check_circle_outline</md-icon>
+              <md-icon v-if="!item.callAttempted" style="opacity:.3">highlight_off</md-icon>
+            </md-table-cell>
+            <md-table-cell md-label="Followup?">
+              <md-icon v-if="item.sentFollowup" style="color:green">check_circle_outline</md-icon>
+              <md-icon v-if="!item.sentFollowup"style="opacity:.3">highlight_off</md-icon>
+            </md-table-cell>
+            <md-table-cell md-label="Meetup?">
+              <md-icon v-if="item.attended" style="color:green">check_circle_outline</md-icon>
+              <md-icon v-if="!item.attended" style="opacity:.3">highlight_off</md-icon>
+            </md-table-cell>
+          </md-table-row>
+        </md-table>
         
         
       </md-card-content>
@@ -50,7 +70,7 @@
         programMembers: { type: Array, required: true } 
       },
       data: function() { return {
-        selectedMobilizerName: null,
+        selectedMobilizerName: "",
         selectedProgramMemberId: null,    
       }; },
       methods: {
