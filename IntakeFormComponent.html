@@ -97,7 +97,7 @@
           v-for="interest in presets.programsAndCommittees" 
           :key="interest" 
           :value="interest" 
-          v-model="tempData.interests"  
+          v-model="pm.interests"  
           name="interests"
         >{{ interest }}</md-checkbox>
       </md-card-content>
@@ -267,7 +267,7 @@
       },
       computed: {
         showSteps: function() {
-          return this.pm.done || this.pm.sketch;
+          return !this.pm.done || !this.pm.sketch;
         },
       },
       watch: {
