@@ -21,7 +21,7 @@
       </md-card-content>
     </md-card>
 
-    <md-card class="step_box">
+    <md-card class="step_box" v-if="showSteps">
       <md-toolbar :md-elevation="1">
         <span class="md-title">Initial Text</span>
       </md-toolbar>
@@ -54,8 +54,8 @@
       <md-card-content>
         <h3>“Hi, is this <b>{{ pm.name }}</b>?”</h3>
         <div class="response_text">Program Member Response:</div>
-        <md-radio v-model="programMemberInfo.callMade" value="Yup!">Yup!</md-radio>
-        <md-radio v-model="programMemberInfo.callMade" value="No Answer/Left Message">No Answer/Left Message</md-radio>
+        <md-radio v-model="pm.callMade" value="Yup!">Yup!</md-radio>
+        <md-radio v-model="pm.callMade" value="No Answer/Left Message">No Answer/Left Message</md-radio>
       </md-card-content>
       
       <md-divider></md-divider>
@@ -240,9 +240,12 @@
       var sourceKeys = Object.keys(sourceObj);
       for (var i = 0; i < sourceKeys.length; i++) {
           var k = sourceKeys[i];
-          targetObj[k] = (Array.isArray(sourceObj[k])) 
+
+          var val = (Array.isArray(sourceObj[k])) 
             ? copyArray(sourceObj[k]) 
             : sourceObj[k];
+
+          Vue.set(targetObj, k, val); 
       }
     }
 
@@ -275,13 +278,12 @@
           absorbObjValues(this.pm, this.programMember);
         },
       },
-      beforeCreate: function() {
-        absorbObjValues(this.pm, this.programMember);
-      },
       created: function() {
+        // prevent mutating data on this component's parent Vue instance:
+        absorbObjValues(this.pm, this.programMember);
+
         var component = this;
         var pmKeys = Object.keys(this.pm);
-
         for (var i = 0; i < pmKeys.length; i++) {
           var k = pmKeys[i];
 
@@ -289,7 +291,8 @@
             if (newVal === oldVal) return;
             
             // let the parent Vue instance know what changed:
-            component.$emit("program-member-change", component.pm.id, k, newVal);
+            var outVal = (Array.isArray(newVal)) ? copyArray(newVal) : newVal;
+            component.$emit("program-member-change", component.pm.id, k, outVal);
           });
         }
       },

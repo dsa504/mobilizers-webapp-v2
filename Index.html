@@ -38,15 +38,15 @@
       <select-program-member
         v-if="programMembers.length"
         v-bind:program-members="programMembers"
-        v-on:program-member-select="onProgramMemberSelect"
+        v-model="selectedProgramMemberId"
       ></select-program-member>
 
-      <intake-form
+      <!-- <intake-form
         v-if="selectedProgramMember"
         v-bind:presets="presets"
-        v-bind:initial-program-member="selectedProgramMember"
+        v-bind:program-member="selectedProgramMember"
         v-on:program-member-update="updateProgramMember"
-      ></intake-form>
+      ></intake-form> -->
 
     </div>
   </div>

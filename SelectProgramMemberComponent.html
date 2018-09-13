@@ -31,8 +31,18 @@
             </md-option>
           </md-select>
         </md-field>
-        <md-table id="progressTracker" v-if="selectedMobilizerName" v-model="assignedMembers" @md-selected="onMemberSelect">
-          <md-table-row  slot="md-table-row" slot-scope="{ item }" md-selectable="single" class="md-primary">
+        <md-table 
+          id="progressTracker" 
+          v-if="selectedMobilizerName" 
+          v-model="assignedMembers" 
+        >
+          <md-table-row  
+            slot="md-table-row" 
+            slot-scope="{ item }" 
+            md-selectable="single" 
+            class="md-primary"
+            v-on:click="selectedProgramMemberId = item.id"
+          >
             <md-table-cell md-label="Program Member" class="firstCol">{{ item.name }}</md-table-cell>
             <md-table-cell md-label="Text?">
               <md-icon v-if="item.textSent" style="color:green">check_circle_outline</md-icon>
@@ -64,19 +74,14 @@
     window.vueComponents.selectProgramMember = {
       template: "#select-program-member",
       props: {
+        value: {type: Number, required: true},
         programMembers: { type: Array, required: true } 
       },
       data: function() { return {
         selectedMobilizerName: "",
-        selectedProgramMemberId: null,
-        selectedProgramMember: null,    
+        selectedProgramMemberId: -1,
       }; },
       methods: {
-        onMemberSelect: function(m) {
-          if (!m) return;
-
-          this.selectedProgramMemberId = m.id;
-        }
       },
       computed: {
         mobilizerNames: function() {
@@ -91,33 +96,27 @@
         },
         assignedMembers: function() {
           var component = this;
-          return this.$props.programMembers
+          return this.programMembers
             .filter(function(pm) {
               return pm.mobilizer === component.selectedMobilizerName; 
             });
         },
+        selectedProgramMember: function() {
+          if (!this.assignedMembers.length) return null;
+          
+          var spmId = this.selectedProgramMemberId;
+          return this.assignedMembers
+            .find(function(pm) {
+              return pm.id === spmId;
+            });
+        },
       },
       watch: {
-        selectedProgramMember: function(newVal, oldVal) {
-          if (newVal === oldVal) return;
-
-          this.$emit("program-member-select", newVal);
+        selectedMobilizerName: function() {
+          this.selectedProgramMemberId = -1;
         },
-        selectedMobilizerName: function(newVal, oldVal) {
-          if (newVal === oldVal) return;
-
-          this.selectedProgramMemberId = null;
-        },
-        selectedProgramMemberId: function(newVal, oldVal) {
-          if (newVal === oldVal) return;
-          
-          if (!newVal) return;
-
-          var component = this;
-          this.selectedProgramMember = this.assignedMembers
-            .find(function(pm) {
-              return pm.id === newVal;
-            });
+        selectedProgramMemberId: function(newId) {
+          this.$emit("input", newId);
         }
       }
     };

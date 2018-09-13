@@ -65,19 +65,22 @@ window.app = new Vue({
     programMembers: [],       
     showLogin: true,
     showSteps: true,
-    selectedProgramMember: null,
+    selectedProgramMemberId: -1,
     presets: {
       initialTextResponses: initialTextResponses,
       programsAndCommittees: programsAndCommittees,
       meetingScheduledResponses: meetingScheduledResponses,
     },
   },
-  computed: {},
-  watch: {
+  computed: {
     selectedProgramMember: function() {
-
+      var spmId = this.selectedProgramMemberId;
+      return this.programMembers.find(function(pm) {
+        return pm.id === spmId;
+      });
     }
   },
+  watch: {},
   methods: {
     onLoginSuccess: function() {
       this.showLogin = false;
@@ -95,14 +98,18 @@ window.app = new Vue({
     updateProgramMember: debounce(function() {
       console.log(this.selectedProgramMember);
     }, 500),
-    onProgramMemberSelect: function (programMember) {
-      console.log(programMember);
-      this.selectedProgramMember = programMember;
+    onProgramMemberSelect: function (programMemberId) {
+      this.selectedProgramMemberId = programMemberId;
     },
-    onProgramMemberChange: function(memberId, key, newVal) {
-      if (!selectedProgramMember) return;
+    onMobilizerChange: function() {
+      this.selectedProgramMemberId = -1;
+    },
+    onProgramMemberChange: function(programMemberId, key, newVal) {
+      var pm = this.programMembers.find(function(pm) {
+        return pm.id === programMemberId;
+      });
 
-      this.selectedProgramMember[key] = newVal;
+      pm[key] = val;
     },
   }
 });
