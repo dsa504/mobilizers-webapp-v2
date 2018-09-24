@@ -1,311 +1,319 @@
 <script>
-//
-// Field options
-//
-var programsAndCommittees = [
-    "Communications",
-    "Direct Service/Brake Lights",
-    "Healthcare For All",
-    "Immigration Working Group",
-    "Labor Standing",
-    "MAC",
-    "Socialist Feminist Caucus",
-    "Political Education",
-    "Socialists Of Color",
-    "Tech",
-    "Other",
-];
-
-var initialTextResponses = [
-    "Call Scheduled",
-    "Left Town / Not Interested",
-    "No Reply",
-];
-
-var meetingScheduledResponses = [
-    "Meetup Scheduled",
-    "Can't/May Attend Later Events",
-    "Not Interested",
-    //"Other",
-];
-
-//
-// Map of fields to spreadsheet columns
-// don't really use the 'type' atm ::shrug::
-// 
-var columnMap = { 
-  mob_name : { id: "a", type: "string" },
-  pm_name : { id: "b", type: "string" },
-  pm_phone : { id: "c", type: "string" },
-  pm_email : { id: "d", type: "string" },
-  pm_assigned_date : { id: "e", type: "string" },
-  pm_assigned_status: { id: "f", type: "string" },
-  pronoun : { id:"g", type: "string" },
-  initial_text_sent : { id:"h", type: "bool" },
-  initial_text_response : { id:"i", type: "string" },
-  call_made: { id:"j", type: "string" },
-  occupation: { id:"k", type: "string" },
-  skills:{ id:"l", type: "string" },
-  interests: { id:"m", type: "array" },
-  meetup_scheduled: { id:"n", type: "string" },
-  followup_text_sent: { id:"o", type: "bool" },
-  attended_meetup: { id:"p", type: "bool" },
-  met_pm: { id:"q", type: "bool" },
-  add_to_slack : { id:"r", type: "bool" },
-  meetup_event : { id:"s", type: "string" },
-  sketch: { id:"t", type: "bool" },
-}
-//
-// Alphabet Map (using this so the columnmap is easier to read/match to the spreadsheet) 
-//
-var alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
-for (var k in columnMap){
-  columnMap[k].id = alphabet.indexOf(columnMap[k].id);
-}
-
-// *********
-// Vue
-// *********
-Vue.use(VueMaterial.default);
-var app = new Vue({
-  el: '#app',
-  data: {
-    activeMobilizer: "",           // int - key value of the currently active mobilizer in mobilizers[]
-    activeProgramMember: "",       // int - key of row in formData[] we're editing
-    columnMap: columnMap, 
-    pw: "",                        // password
-    formData: "",                  // data from spreadsheet (this is the data we're modifying with the form)
-    formDataLoaded: false,         // flag indicated we've pulled the spreadsheet data
-    formOptions: {
-      initialTextResponses : initialTextResponses,
-      programsAndCommittees : programsAndCommittees,
-      meetingScheduledResponses : meetingScheduledResponses,
-      showSteps: true,
-      showLogin: true,
-      showLoginError: false,
-    },
-    tempData: {                   // note: bc Vue Material will only treat checkboxes correctly if the v-model field is an array, 
-       interests: [],             // we use tempData.interests as a intermediate variable between the form and formData
-       doneButtonState: ""
-    }
-  },
-  computed: {
-    //
-    // get an array of all the mobilizers from formData
-    //
-    mobilizers:{
-      get: function(){ 
-        var tmp = [];
-        for(i = 1; i < this.formData.length; ++i){
-          tmp.push( this.formData[i][columnMap['mob_name'].id] );
-        };
-        tmp = uniq(tmp);
-        return tmp;
-      },
-      set: function(val){
-        return val;
-      }
-    },
-    //
-    // get an array of program members assigned to the active mobilizer from formData
-    //
-    programMembers:{
-      get: function(){ 
-        var tmp = [];
-        for(i = 1; i < this.formData.length; ++i){
-          if(this.formData[i][columnMap['mob_name'].id] == this.activeMobilizer){ // this program member is assigned to the active mobilizer
-            
-            var row = this.formData[i];
-            
-            // extra data for use in the program members progress table
-            var textSent = false;
-            var callAttempted = false;
-            var sentFollowup = false;
-            var attended = false;
-            
-            if(row[columnMap['initial_text_sent'].id]==true){textSent = true;};
-            if(row[columnMap['call_made'].id]!==""){callAttempted = true;};
-            if(row[columnMap['followup_text_sent'].id]==true){sentFollowup = true;};
-            if(row[columnMap['attended_meetup'].id]==true){attended = true;};
-            
-            tmp.push( {
-                      name: row[columnMap['pm_name'].id],
-                      id:i,
-                      textSent : textSent,
-                      callAttempted : callAttempted,
-                      sentFollowup: sentFollowup,
-                      attended: attended
-             } );
-          }
-        };
-        
-        return tmp;
-      },
-      set: function(val){
-        return val;
-      }
-    },
-    //
-    // get the details for the active program member from formData, for the program member details "contact card"
-    //
-    activeProgramMemberData:function(){ 
-      var assignedDate = this.formData[this.activeProgramMember][columnMap['pm_assigned_date'].id];
-      var dueDate = moment(assignedDate).add(7, 'days').format('MM/DD/YYYY');
-      var pmData = {
-        name : this.formData[this.activeProgramMember][columnMap['pm_name'].id],
-        phone : this.formData[this.activeProgramMember][columnMap['pm_phone'].id],
-        email : this.formData[this.activeProgramMember][columnMap['pm_email'].id],
-        assigned : assignedDate,
-        due : dueDate,
-        status : this.formData[this.activeProgramMember][columnMap['pm_assigned_status'].id]
-      }
-      return pmData;
-    },
-  },
-  watch: {
-    activeProgramMember: function(){ 
-      if(this.activeProgramMember !== ""){
-        console.log("Editing Row: "+this.activeProgramMember);
-        
-        // Vue Material hacks, see note in data
-        var interests = this.formData[this.activeProgramMember][columnMap["interests"].id];
-        if(interests != ''){
-          this.tempData.interests = JSON.parse(this.formData[this.activeProgramMember][columnMap["interests"].id]);
-        } else {
-          this.tempData.interests = [];
-        }
-        
-        this.tempData.doneButtonState = this.formData[this.activeProgramMember][columnMap["pm_assigned_status"].id];
-        
-      }
-    },
-    activeMobilizer: function(){
-      this.activeProgramMember = ''; // reset activeProgramMember when we change mobilizers
-    },
-    //
-    // Vue Materal semi-hacks, see note above
-    //
-    'tempData.interests': function(){
-       this.formData[this.activeProgramMember][columnMap["interests"].id] = JSON.stringify(this.tempData.interests);
-       if(this.formDataLoaded){
-            this.putSpreadsheetData();
-       }
-    },
-    'tempData.doneButtonState': function(){
-      var status = this.tempData.doneButtonState;
-      console.log(status);
-      if( status == "Open"){
-        this.formData[this.activeProgramMember][columnMap["pm_assigned_status"].id] = "Open";
-      }
-      if( status == "Marked Done"){
-        this.formData[this.activeProgramMember][columnMap["pm_assigned_status"].id] = "Marked Done";
-      }
-      if(this.formDataLoaded){
-            this.putSpreadsheetData();
-       }
-    },
-    ///
-    /// on change, push the data to the spreadsheet
-    ///
-    formData: function(){ 
-        if(this.activeProgramMember != 'undefined' && this.activeProgramMember != null && this.activeProgramMember != ""){
-          this.showHideSteps(); // If there's no response to initial text, or they're not interested, hide the rest of the steps
-          if(this.formDataLoaded){
-            this.putSpreadsheetData();
-          }
-        }
-    },
-    
-    
-  },
-  methods: {
-    //
-    // Attempt to login to the backend
-    //
-    attemptLogin: function(e){  
-      google.script.run.withSuccessHandler(this.loginAttempt).tryLogin( this.pw );
-    },
-    //
-    // Login callback
-    //
-    loginAttempt: function(data){ 
-      if(data == "OK"){
-         console.log("Logged In!");
-         this.formOptions.showLogin = false;
-         this.getSpreadsheetData();
-      }else{
-        console.log("Oops, wrong password.");
-        this.formOptions.showLoginError = true;
-      }
-    },
-    //
-    // get the spreadsheet data
-    //
-    getSpreadsheetData: function(){ 
-      console.log("Fetching Data...");
-      google.script.run.withSuccessHandler( this.onGetSpreadsheetDataSuccess ).getSpreadsheet( this.pw );
-    },
-    //
-    // get spreadsheet callback
-    //
-    onGetSpreadsheetDataSuccess: function(data){ 
-      this.formData = data;
-      this.formDataLoaded = true;
-    },
-    //
-    // put the spreadsheet data
-    //
-    putSpreadsheetData: function(){ 
-      var output = this.formData[this.activeProgramMember];
-      console.log("sending active row: "+this.activeProgramMember);
-      console.log(output);
-      google.script.run.withSuccessHandler(this.onPutSpreadsheetDataSuccess).updateSpreadsheet(this.columnMap, this.activeProgramMember, output, this.pw);
-    },
-    //
-    // put spreadsheet callback
-    //
-    onPutSpreadsheetDataSuccess: function(){ 
-      console.log("data PUT"); 
-    },
-    //
-    // If there's no response to initial text, or they're not interested, hide the rest of the steps
-    //
-    showHideSteps: function(){
-      var initText = this.formData[this.activeProgramMember][columnMap["initial_text_response"].id];
-      if(initText == "Call Scheduled" || initText == ""){
-        this.formOptions.showSteps = true;
-      } else {
-        this.formOptions.showSteps = false;
-      }
-    },
-    //
-    // Select a Program Member from the table
-    //
-    onTableSelect: function(item) { 
-      if(typeof item != 'undefined' && item != null){ 
-        this.activeProgramMember = item.id;
-      };
-    },
-    //
-    // Toggle the "Marked as Done" button
-    //
-    doneButtonToggle: function(state) {
-      if( state == "Open"){
-        this.tempData.doneButtonState = "Marked Done";
-      }
-      if( state == "Marked Done"){
-        this.tempData.doneButtonState = "Open";
-      }
-    }
+  //
+  // Field options
+  //
+  var programsAndCommittees = [
+      "Communications",
+      "Direct Service/Brake Lights",
+      "Healthcare For All",
+      "Immigration Working Group",
+      "Labor Standing",
+      "MAC",
+      "Socialist Feminist Caucus",
+      "Political Education",
+      "Socialists Of Color",
+      "Tech",
+      "Other",
+  ];
+  
+  var initialTextResponses = [
+      "Call Scheduled",
+      "Left Town / Not Interested",
+      "No Reply",
+  ];
+  
+  var meetingScheduledResponses = [
+      "Meetup Scheduled",
+      "Can't/May Attend Later Events",
+      "Not Interested",
+      //"Other",
+  ];
+  
+  //
+  // Map of fields to spreadsheet columns
+  // don't really use the 'type' atm ::shrug::
+  // 
+  var columnMap = { 
+    mob_name : { id: "a", type: "string" },
+    pm_name : { id: "b", type: "string" },
+    pm_phone : { id: "c", type: "string" },
+    pm_email : { id: "d", type: "string" },
+    pm_assigned_date : { id: "e", type: "string" },
+    pm_assigned_status: { id: "f", type: "string" },
+    pronoun : { id:"g", type: "string" },
+    initial_text_sent : { id:"h", type: "bool" },
+    initial_text_response : { id:"i", type: "string" },
+    call_made: { id:"j", type: "string" },
+    occupation: { id:"k", type: "string" },
+    skills:{ id:"l", type: "string" },
+    interests: { id:"m", type: "array" },
+    meetup_scheduled: { id:"n", type: "string" },
+    followup_text_sent: { id:"o", type: "bool" },
+    attended_meetup: { id:"p", type: "bool" },
+    met_pm: { id:"q", type: "bool" },
+    add_to_slack : { id:"r", type: "bool" },
+    meetup_event : { id:"s", type: "string" },
+    sketch: { id:"t", type: "bool" },
   }
-})
-
-//
-// helpers & utils
-//
-
-// Remove Duplicates in Array 
-function uniq(a){var prims={"boolean":{},number:{},string:{}},objs=[];return a.filter(function(item){var type=typeof item;if(type in prims)return prims[type].hasOwnProperty(item)?false:prims[type][item]=true;else return objs.indexOf(item)>=0?false:objs.push(item)})}
-
-
-</script>
+  //
+  // Alphabet Map (using this so the columnmap is easier to read/match to the spreadsheet) 
+  //
+  var alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
+  for (var k in columnMap){
+    columnMap[k].id = alphabet.indexOf(columnMap[k].id);
+  }
+  
+  // *********
+  // Vue
+  // *********
+  Vue.use(VueMaterial.default);
+  var app = new Vue({
+    el: '#app',
+    data: {
+      activeMobilizer: "",           // int - key value of the currently active mobilizer in mobilizers[]
+      activeProgramMember: "",       // int - key of row in formData[] we're editing
+      columnMap: columnMap, 
+      pw: "",                        // password
+      formData: "",                  // data from spreadsheet (this is the data we're modifying with the form)
+      formDataLoaded: false,         // flag indicated we've pulled the spreadsheet data
+      formOptions: {
+        initialTextResponses : initialTextResponses,
+        programsAndCommittees : programsAndCommittees,
+        meetingScheduledResponses : meetingScheduledResponses,
+        showSteps: true,
+        showLogin: true,
+        showLoginError: false,
+      },
+      tempData: {                   // note: bc Vue Material will only treat checkboxes correctly if the v-model field is an array, 
+         interests: [],             // we use tempData.interests as a intermediate variable between the form and formData
+         doneButtonState: "",
+      }
+    },
+    computed: {
+      //
+      // get an array of all the mobilizers from formData
+      //
+      mobilizers:{
+        get: function(){ 
+          var tmp = [];
+          for(i = 1; i < this.formData.length; ++i){
+            tmp.push( this.formData[i][columnMap['mob_name'].id] );
+          };
+          tmp = uniq(tmp);
+          return tmp;
+        },
+        set: function(val){
+          return val;
+        }
+      },
+      //
+      // get an array of program members assigned to the active mobilizer from formData
+      //
+      programMembers:{
+        get: function(){ 
+          var tmp = [];
+          for(i = 1; i < this.formData.length; ++i){
+            if(this.formData[i][columnMap['mob_name'].id] == this.activeMobilizer){ // this program member is assigned to the active mobilizer
+              
+              var row = this.formData[i];
+              
+              // extra data for use in the program members progress table
+              var textSent = false;
+              var callAttempted = false;
+              var sentFollowup = false;
+              var attended = false;
+              
+              if( this.checkTruthiness(row[columnMap['initial_text_sent'].id] ) ){textSent = true;};
+              if(row[columnMap['call_made'].id]!==""){callAttempted = true;};
+              if( this.checkTruthiness(row[columnMap['followup_text_sent'].id] ) ){sentFollowup = true;};
+              if( this.checkTruthiness(row[columnMap['attended_meetup'].id] ) ){attended = true;};
+              
+              tmp.push( {
+                        name: row[columnMap['pm_name'].id],
+                        id:i,
+                        textSent : textSent,
+                        callAttempted : callAttempted,
+                        sentFollowup: sentFollowup,
+                        attended: attended
+               } );
+            }
+          };
+          
+          return tmp;
+        },
+        set: function(val){
+          return val;
+        }
+      },
+      //
+      // get the details for the active program member from formData, for the program member details "contact card"
+      //
+      activeProgramMemberData:function(){ 
+        var assignedDate = this.formData[this.activeProgramMember][columnMap['pm_assigned_date'].id];
+        var dueDate = moment(assignedDate).add(7, 'days').format('MM/DD/YYYY');
+        var pmData = {
+          name : this.formData[this.activeProgramMember][columnMap['pm_name'].id],
+          phone : this.formData[this.activeProgramMember][columnMap['pm_phone'].id],
+          email : this.formData[this.activeProgramMember][columnMap['pm_email'].id],
+          assigned : assignedDate,
+          due : dueDate,
+          status : this.formData[this.activeProgramMember][columnMap['pm_assigned_status'].id]
+        }
+        return pmData;
+      },
+    },
+    watch: {
+      activeProgramMember: function(){ 
+        if(this.activeProgramMember !== ""){
+          console.log("Editing Row: "+this.activeProgramMember);
+          
+          // Vue Material hacks, see note in data
+          var interests = this.formData[this.activeProgramMember][columnMap["interests"].id];
+          if(interests != ''){
+            this.tempData.interests = JSON.parse(this.formData[this.activeProgramMember][columnMap["interests"].id]);
+          } else {
+            this.tempData.interests = [];
+          }
+       
+          this.tempData.doneButtonState = this.formData[this.activeProgramMember][columnMap["pm_assigned_status"].id];
+        }
+      },
+      activeMobilizer: function(){
+        this.activeProgramMember = ''; // reset activeProgramMember when we change mobilizers
+      },
+      //
+      // Vue Materal semi-hacks, see note above
+      //
+      'tempData.interests': function(){
+         this.formData[this.activeProgramMember][columnMap["interests"].id] = JSON.stringify(this.tempData.interests);
+         if(this.formDataLoaded){
+              this.putSpreadsheetData();
+         }
+      },
+      'tempData.doneButtonState': function(){
+        var status = this.tempData.doneButtonState;
+        console.log(status);
+        if( status == "Open"){
+          this.formData[this.activeProgramMember][columnMap["pm_assigned_status"].id] = "Open";
+        }
+        if( status == "Marked Done"){
+          this.formData[this.activeProgramMember][columnMap["pm_assigned_status"].id] = "Marked Done";
+        }
+        if(this.formDataLoaded){
+              this.putSpreadsheetData();
+         }
+      },
+      ///
+      /// on change, push the data to the spreadsheet
+      ///
+      formData: function(){ 
+          if(this.activeProgramMember != 'undefined' && this.activeProgramMember != null && this.activeProgramMember != ""){
+            this.showHideSteps(); // If there's no response to initial text, or they're not interested, hide the rest of the steps
+            if(this.formDataLoaded){
+              this.putSpreadsheetData();
+            }
+          }
+      },
+      
+      
+    },
+    methods: {
+      checkTruthiness: function(test){
+        if(test == true || test == "true" || test == "TRUE"){
+          return true;
+        }else{
+          return false;
+        }
+      },
+      //
+      // Attempt to login to the backend
+      //
+      attemptLogin: function(e){  
+        google.script.run.withSuccessHandler(this.loginAttempt).tryLogin( this.pw );
+      },
+      //
+      // Login callback
+      //
+      loginAttempt: function(data){ 
+        if(data == "OK"){
+           console.log("Logged In!");
+           this.formOptions.showLogin = false;
+           this.getSpreadsheetData();
+        }else{
+          console.log("Oops, wrong password.");
+          this.formOptions.showLoginError = true;
+        }
+      },
+      //
+      // get the spreadsheet data
+      //
+      getSpreadsheetData: function(){ 
+        console.log("Fetching Data...");
+        google.script.run.withSuccessHandler( this.onGetSpreadsheetDataSuccess ).getSpreadsheet( this.pw );
+      },
+      //
+      // get spreadsheet callback
+      //
+      onGetSpreadsheetDataSuccess: function(data){
+        // catch the bools
+        this.formData = data;
+        
+        this.formDataLoaded = true;
+      },
+      //
+      // put the spreadsheet data
+      //
+      putSpreadsheetData: function(){ 
+        var output = this.formData[this.activeProgramMember];
+        console.log("sending active row: "+this.activeProgramMember);
+        console.log(output);
+        google.script.run.withSuccessHandler(this.onPutSpreadsheetDataSuccess).updateSpreadsheet(this.columnMap, this.activeProgramMember, output, this.pw);
+      },
+      //
+      // put spreadsheet callback
+      //
+      onPutSpreadsheetDataSuccess: function(){ 
+        console.log("data PUT"); 
+      },
+      //
+      // If there's no response to initial text, or they're not interested, hide the rest of the steps
+      //
+      showHideSteps: function(){
+        var initText = this.formData[this.activeProgramMember][columnMap["initial_text_response"].id];
+        if(initText == "Call Scheduled" || initText == ""){
+          this.formOptions.showSteps = true;
+        } else {
+          this.formOptions.showSteps = false;
+        }
+      },
+      //
+      // Select a Program Member from the table
+      //
+      onTableSelect: function(item) { 
+        if(typeof item != 'undefined' && item != null){ 
+          this.activeProgramMember = item.id;
+        };
+      },
+      //
+      // Toggle the "Marked as Done" button
+      //
+      doneButtonToggle: function(state) {
+        if( state == "Open"){
+          this.tempData.doneButtonState = "Marked Done";
+        }
+        if( state == "Marked Done"){
+          this.tempData.doneButtonState = "Open";
+        }
+      }
+    }
+  })
+  
+  //
+  // helpers & utils
+  //
+  
+  // Remove Duplicates in Array 
+  function uniq(a){var prims={"boolean":{},number:{},string:{}},objs=[];return a.filter(function(item){var type=typeof item;if(type in prims)return prims[type].hasOwnProperty(item)?false:prims[type][item]=true;else return objs.indexOf(item)>=0?false:objs.push(item)})}
+  
+  
+  </script>
