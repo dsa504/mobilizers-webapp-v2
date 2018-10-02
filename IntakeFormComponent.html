@@ -1,5 +1,5 @@
 <template id="intake-form">
-  <form class="intake-form active" v-on:input="onPmChange">
+  <form class="intake-form active">
     <md-card class="login-card">
       <md-toolbar :md-elevation="1">
         <md-icon>face</md-icon>
@@ -31,12 +31,19 @@
         </div>
         
         <div class="checkbox_wrap">
-          <md-checkbox v-model="pm.initalTextSent" :value="true">Text Sent?</md-checkbox>
+          <md-checkbox 
+            v-model="pm.initalTextSent" 
+            :value="true"
+            @change="emitChange('initalTextSent', $event)"
+          >Text Sent?</md-checkbox>
         </div>
         
         <div class="response_text">Program Member Response:</div>
         <md-field>
-          <md-select v-model="pm.initialTextResponse">
+          <md-select 
+            v-model="pm.initialTextResponse"
+            @md-selected="emitChange('initialTextResponse', $event)"
+          >
             <md-option 
               v-for="response in presets.initialTextResponses" 
               :key="response" 
@@ -54,8 +61,16 @@
       <md-card-content>
         <h3>“Hi, is this <b>{{ pm.name }}</b>?”</h3>
         <div class="response_text">Program Member Response:</div>
-        <md-radio v-model="pm.callMade" value="Yup!">Yup!</md-radio>
-        <md-radio v-model="pm.callMade" value="No Answer/Left Message">No Answer/Left Message</md-radio>
+        <md-radio 
+          v-model="pm.callMade" 
+          value="Yup!"
+          @change="emitChange('callMade', $event)"
+        >Yup!</md-radio>
+        <md-radio 
+          v-model="pm.callMade" 
+          value="No Answer/Left Message"
+          @change="emitChange('callMade', $event)"
+        >No Answer/Left Message</md-radio>
       </md-card-content>
       
       <md-divider></md-divider>
@@ -77,11 +92,19 @@
         <div class="response_text">Program Member Response:</div>
         <md-field>
           <label for="pronoun">Enter Pronoun</label>
-          <md-input id="pronoun" v-model="pm.pronoun"></md-input>
+          <md-input 
+            id="pronoun" 
+            v-model="pm.pronoun"
+            @keyup="emitChange('pronoun', $event.target.value)"
+          ></md-input>
         </md-field>
         <md-field>
           <label for="occupation">Enter Occupation</label>
-          <md-input id="occupation" v-model="pm.occupation"></md-input>
+          <md-input 
+            id="occupation" 
+            v-model="pm.occupation"
+            @keyup="emitChange('occupation', $event.target.value)"
+          ></md-input>
         </md-field>
       </md-card-content>
       
@@ -99,6 +122,7 @@
           :value="interest" 
           v-model="pm.interests"  
           name="interests"
+          @change="emitChange('interests', $event)"
         >{{ interest }}</md-checkbox>
       </md-card-content>
       
@@ -113,8 +137,9 @@
         <md-field>
           <label for="skills">Enter Skills\Resources</label>
           <md-textarea 
-          id="skills" 
-          v-model="pm.skills"
+            id="skills" 
+            v-model="pm.skills"
+            @keyup="emitChange('skills', $event.target.value)"
           ></md-textarea>   
         </md-field>
       </md-card-content>
@@ -145,13 +170,17 @@
         </div>
         <div class="response_text">Program Member Response:</div>
         <md-field>
-          <md-select v-model="pm.meetupScheduled">
+          <md-select v-model="pm.meetupScheduled" @md-selected="emitChange('meetupScheduled', $event)">
             <md-option v-for="opt in presets.meetingScheduledResponses" :key="opt" :value="opt">{{ opt }}</md-option>
           </md-select>
         </md-field>
         <md-field>
           <label for="meetup_event">Enter Event {{pm.name}} Says They'll Attend</label>
-          <md-input v-model="pm.meetupEvent" placeholder='Enter Meetup Event'></md-input>
+          <md-input 
+            v-model="pm.meetupEvent" 
+            placeholder='Enter Meetup Event'
+            @keyup="emitChange('meetupEvent', $event.target.value)"
+          ></md-input>
         </md-field>
         <div class="speech-bubble">"Bye, and thanks for your time!"</div>
       </md-card-content>
@@ -166,7 +195,11 @@
         <div class="speech-bubble-text">
           “Hey <b>{{pm.name}}</b> - was really nice talking to you the other day, just wanted to follow up to make sure you had the details of our <b>[social/general]: [location/date/time]</b>. Hope to see you there!"
         </div>
-        <md-checkbox v-model="pm.followupTextSent" :value="true">Text Sent?</md-checkbox>
+        <md-checkbox 
+          v-model="pm.followupTextSent" 
+          :value="true"
+          @change="emitChange('followupTextSent', $event)"  
+        >Text Sent?</md-checkbox>
       </md-card-content>
     </md-card>
   
@@ -179,16 +212,28 @@
         <ul>
           <li>We’ll make an announcement at the event, but <b>find your program members and introduce yourself!</b></li>
           <li>Keep an open mind and be friendly</li>
-          <li><b>Learn about your program members</b>- their interests, best way to contact, availability, etc</li>
-          <li><b>Make introductions</b>- particularly to members that share interests, professions or are in committees your program member has expressed interest in </li>
+          <li><b>Learn about your program members</b> - their interests, best way to contact, availability, etc</li>
+          <li><b>Make introductions</b> - particularly to members that share interests, professions or are in committees your program member has expressed interest in </li>
           <li>Explain Slack, how we use it, and <b>ask if the Program Member would like to be added</b></li>
-          <li><b>Explain basic stuff</b>- committee/leadership structures, general meetings, grievance policy, etc</li>
+          <li><b>Explain basic stuff</b> - committee/leadership structures, general meetings, grievance policy, etc</li>
           <li><b>Answer any questions</b>; if you’re not sure, note and contact #mobilizerdesk (or ask around the event- if the question is pertinent to a specific committee or project, it can be an opportunity to introduce the program member to a active member.)</li>
         </ul>
         <div class="response_text">Please check the following:</div>
-        <md-checkbox v-model="pm.attendedMeetup" :value="true">Attended General or Social</md-checkbox>
-        <md-checkbox v-model="pm.metPm" :value="true"> Met <b>{{ pm.name}}</b></md-checkbox>
-        <md-checkbox v-model="pm.addToSlack" :value="true">Add <b>{{ pm.name}}</b> to Slack</md-checkbox>
+        <md-checkbox 
+          v-model="pm.attendedMeetup" 
+          :value="true"
+          @change="emitChange('attendedMeetup', $event)"  
+        >Attended General or Social</md-checkbox>
+        <md-checkbox 
+          v-model="pm.metPm" 
+          :value="true"
+          @change="emitChange('metPm', $event)"
+        >Met <b>{{ pm.name}}</b></md-checkbox>
+        <md-checkbox 
+          v-model="pm.addToSlack" 
+          :value="true"
+          @change="emitChange('addToSlack', $event)"
+        >Add <b>{{ pm.name}}</b> to Slack</md-checkbox>
       </md-card-content>
     </md-card>
   
@@ -203,7 +248,8 @@
         <md-switch 
           id="mark_as_done" 
           class="md-raised"
-          v-model="pm.done" 
+          v-model="pm.done"
+          @change="emitChange('done', $event)" 
         >
           <span v-if="!pm.done">Mark as Done</span>
           <span v-if="pm.done">Marked Done</span>
@@ -217,7 +263,12 @@
       </md-toolbar>
       <md-card-content>
         <div style="padding-bottom:20px;">If at any point the person you're mobilizing makes you uncomfortable, or if you suspect they may be an infiltrator, cop or other bad actor, please stop the process and click the checkbox below!</div>
-        <md-checkbox v-model="pm.sketch" :value="true" class="md-accent"><b>Mark as Sketch</b></md-checkbox>
+        <md-checkbox 
+          v-model="pm.sketch" 
+          :value="true" 
+          class="md-accent"
+          @change="emitChange('sketch', $event)"
+        ><b>Mark as Sketch</b></md-checkbox>
       </md-card-content>
     </md-card>
 
@@ -261,8 +312,16 @@
         pm: {},
       };},
       methods: {
-        onPmChange: function(e) {
-          console.log(e);
+        emitChange: function(changedProp, value) {
+          this.$emit("program-member-update", {
+            id: this.programMember.id,
+            changedProp: changedProp,
+            value: value
+          });
+        },
+        absorbNewProgramMemberData: function() {
+          // prevent mutating data on this component's parent Vue instance:
+          absorbObjValues(this.pm, this.programMember);
         },
       },
       computed: {
@@ -272,29 +331,11 @@
       },
       watch: {
         programMember: function(newVal, oldVal) {
-          if (newVal === oldVal)
-
-          // prevent mutating data on this component's parent Vue instance:
-          absorbObjValues(this.pm, this.programMember);
+          this.absorbNewProgramMemberData();
         },
       },
       created: function() {
-        // prevent mutating data on this component's parent Vue instance:
-        absorbObjValues(this.pm, this.programMember);
-
-        var component = this;
-        var pmKeys = Object.keys(this.pm);
-        for (var i = 0; i < pmKeys.length; i++) {
-          var k = pmKeys[i];
-
-          this.$watch("pm." + k, function(newVal, oldVal) {
-            if (newVal === oldVal) return;
-            
-            // let the parent Vue instance know what changed:
-            var outVal = (Array.isArray(newVal)) ? copyArray(newVal) : newVal;
-            component.$emit("program-member-change", component.pm.id, k, outVal);
-          });
-        }
+        this.absorbNewProgramMemberData();
       },
     };
 

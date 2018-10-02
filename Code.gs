@@ -76,6 +76,15 @@ var internals = {
   },
 };
 
+var utils = {
+  find: function(array, test) {
+    for (var i = 0; i< array.length; i++) {
+      if (test(array[i], i, array)) return array[i];
+    }
+    return null;
+  }
+}
+
 function login(pw) {
   if (pw !== appSettings.password) return "NOPE";
  
@@ -104,12 +113,16 @@ function updateProgramMember(member) {
     .getNumberRange(columnMapKeys.length)
     .map(function(n) {
       // find the name of the property that goes at this index:
-      var propName = columnMapKeys.find(function(k){return columnMap[k].id === n})
+      var propName = utils.find(columnMapKeys, function(k){return columnMap[k].id === n})
 
       return internals.toSheet(member[propName], columnMap[propName].type);
     });
 
   internals.updateSpreadsheet(member.id, memberRow);
+
+  return {
+    success: true
+  };
 };
 
 // app entry point

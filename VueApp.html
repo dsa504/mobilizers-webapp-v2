@@ -74,6 +74,8 @@ window.app = new Vue({
   },
   computed: {
     selectedProgramMember: function() {
+      if (!this.programMembers.length) return null;
+
       var spmId = this.selectedProgramMemberId;
       return this.programMembers.find(function(pm) {
         return pm.id === spmId;
@@ -95,21 +97,23 @@ window.app = new Vue({
         })
         .getProgramMembers();
     },
-    updateProgramMember: debounce(function() {
-      console.log(this.selectedProgramMember);
+    updateProgramMember: debounce(function(update) {
+      this.selectedProgramMember[update.changedProp] = update.value;
+
+      console.log(this.selectedProgramMember[update.changedProp])
+
+      google.script.run
+         .withSuccessHandler(function(res){
+           console.log("save response: ", res);
+         })
+         .updateProgramMember(this.selectedProgramMember);
+
     }, 500),
     onProgramMemberSelect: function (programMemberId) {
       this.selectedProgramMemberId = programMemberId;
     },
     onMobilizerChange: function() {
       this.selectedProgramMemberId = -1;
-    },
-    onProgramMemberChange: function(programMemberId, key, newVal) {
-      var pm = this.programMembers.find(function(pm) {
-        return pm.id === programMemberId;
-      });
-
-      pm[key] = val;
     },
   }
 });
