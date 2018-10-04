@@ -8,26 +8,26 @@ var userProperties = PropertiesService.getUserProperties();
 // 
 
 var columnMap = {
-  mobilizer:            { id: 0, type: String },
-  name:                 { id: 1, type: String },
-  phone:                { id: 2, type: String },
-  email:                { id: 3, type: String },
-  assignedDate:         { id: 4, type: String },
-  assignedStatus:       { id: 5, type: String },
-  pronoun:              { id: 6, type: String },
-  initialTextSent:      { id: 7, type: Boolean },
-  initialTextResponse:  { id: 8, type: String },
-  callMade:             { id: 9, type: String },
-  occupation:           { id: 10, type: String },
-  skills:               { id: 11, type: String },
-  interests:            { id: 12, type: Array },
-  meetupScheduled:      { id: 13, type: String },
-  followupTextSent:     { id: 14, type: Boolean },
-  attendedMeetup:       { id: 15, type: Boolean },
-  metMobilizerAtEvent:  { id: 16, type: Boolean },
-  addToSlack:           { id: 17, type: Boolean },
-  meetupEvent:          { id: 18, type: String },
-  sketch:               { id: 19, type: Boolean },
+  mobilizer:            { id: 0, type: String },   // A
+  name:                 { id: 1, type: String },   // B
+  phone:                { id: 2, type: String },   // C
+  email:                { id: 3, type: String },   // D
+  assignedDate:         { id: 4, type: String },   // E
+  markedAsDone:         { id: 5, type: Boolean },  // F
+  pronoun:              { id: 6, type: String },   // G
+  initialTextSent:      { id: 7, type: Boolean },  // H
+  initialTextResponse:  { id: 8, type: String },   // I
+  callMade:             { id: 9, type: String },   // J
+  occupation:           { id: 10, type: String },  // K
+  skills:               { id: 11, type: String },  // L
+  interests:            { id: 12, type: Array },   // M
+  meetupScheduled:      { id: 13, type: String },  // N
+  followupTextSent:     { id: 14, type: Boolean }, // O
+  attendedMeetup:       { id: 15, type: Boolean }, // P
+  metMobilizerAtEvent:  { id: 16, type: Boolean }, // Q
+  addToSlack:           { id: 17, type: Boolean }, // R
+  meetupEvent:          { id: 18, type: String },  // S
+  sketch:               { id: 19, type: Boolean }, // T
 };
 
 var internals = {
@@ -45,7 +45,7 @@ var internals = {
   },
   updateSpreadsheet: function(row, data){
     ws
-      .getRange(row+1, 1, 1, data.length)
+      .getRange(row+2, 1, 1, data.length)
       .setValues([data]);
     
     return "DONE";
@@ -69,7 +69,7 @@ var internals = {
   // just creates an array of numbers of the specified length:
   getNumberRange: function(rangeLength) {
     var out = [];
-    for (var i = 0; i< rangeLength; i++) {
+    for (var i = 0; i < rangeLength; i++) {
       out.push(i);
     }
     return out;
@@ -78,7 +78,7 @@ var internals = {
 
 var utils = {
   find: function(array, test) {
-    for (var i = 0; i< array.length; i++) {
+    for (var i = 0; i < array.length; i++) {
       if (test(array[i], i, array)) return array[i];
     }
     return null;

@@ -13,9 +13,9 @@
             <li>Email: {{ pm.email }}</li>
           </ul>
           <ul class="mdl-list">
-            <li>Assigned Date: {{ pm.assigned }}</li>
+            <li>Assigned Date: {{ pm.assignedDate }}</li>
             <li>Due Date: <b>{{ pm.due }}</b></li>
-            <li>Status: {{ pm.status }}</li>
+            <li>Marked As Done: {{ pm.markedAsDone }}</li>
           </ul>
         </div>
       </md-card-content>
@@ -32,9 +32,9 @@
         
         <div class="checkbox_wrap">
           <md-checkbox 
-            v-model="pm.initalTextSent" 
+            v-model="pm.initialTextSent" 
             :value="true"
-            @change="emitChange('initalTextSent', $event)"
+            @change="emitChange('initialTextSent', $event)"
           >Text Sent?</md-checkbox>
         </div>
         
@@ -225,10 +225,10 @@
           @change="emitChange('attendedMeetup', $event)"  
         >Attended General or Social</md-checkbox>
         <md-checkbox 
-          v-model="pm.metPm" 
+          v-model="pm.metMobilizerAtEvent" 
           :value="true"
-          @change="emitChange('metPm', $event)"
-        >Met <b>{{ pm.name}}</b></md-checkbox>
+          @change="emitChange('metMobilizerAtEvent', $event)"
+        >Met <b>{{ pm.name}}</b> At Event</md-checkbox>
         <md-checkbox 
           v-model="pm.addToSlack" 
           :value="true"
@@ -248,11 +248,11 @@
         <md-switch 
           id="mark_as_done" 
           class="md-raised"
-          v-model="pm.done"
-          @change="emitChange('done', $event)" 
+          v-model="pm.markedAsDone"
+          @change="emitChange('markedAsDone', $event)" 
         >
-          <span v-if="!pm.done">Mark as Done</span>
-          <span v-if="pm.done">Marked Done</span>
+          <span v-if="!pm.markedAsDone">Mark as Done</span>
+          <span v-if="pm.markedAsDone">Marked Done</span>
         </md-switch>
       </md-card-actions>
     </md-card>
