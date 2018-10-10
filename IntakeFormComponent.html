@@ -14,7 +14,7 @@
           </ul>
           <ul class="mdl-list">
             <li>Assigned Date: {{ pm.assignedDate }}</li>
-            <li>Due Date: <b>{{ pm.due }}</b></li>
+            <li>Due Date: <b>{{ dueDate }}</b></li>
             <li>Marked As Done: {{ pm.markedAsDone }}</li>
           </ul>
         </div>
@@ -300,6 +300,43 @@
       }
     }
 
+    function parseDate(dateString = "12/31/1999") {
+      var dateComponents = dateString
+        .split("/")
+        .map(function(n) { return parseInt(n)});
+
+      var d = new Date();
+      d.setMonth(dateComponents[0] - 1);
+      d.setDate(dateComponents[1]);
+      d.setFullYear(dateComponents[2]);
+
+      return d;
+    }
+
+    function addDays(date, days) {
+      if (typeof date === 'string') {
+        var d = parseDate(date);
+        d.setDate(d.getDate() + days);
+        return d;
+      }
+      
+      if (date instanceof Date) {
+        var d = new Date(date.valueOf());
+        d.setDate(d.getDate() + days);
+        return d;
+      }
+
+      return null;
+    }
+
+    function getDateString(date) {
+      var m = date.getMonth() + 1;
+      var d = date.getDate();
+      var y = date.getFullYear();
+
+      return m + '/' + d + '/' + y;
+    }
+
     window.vueComponents.intakeForm = {
       template: "#intake-form",
       props: {
@@ -327,6 +364,10 @@
       computed: {
         showSteps: function() {
           return !this.pm.done || !this.pm.sketch;
+        },
+        dueDate: function() {
+          var d = parseDate(this.pm.assignedDate);
+          return getDateString(addDays(d, 14));
         },
       },
       watch: {

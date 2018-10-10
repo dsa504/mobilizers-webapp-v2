@@ -1,0 +1,6 @@
+function getAppSettings() {
+  return {
+    spreadsheetId: "the spreadsheet id goes inside these quotes",
+    password: "the spreadsheet id goes inside these quotes",
+  };
+}
