@@ -34,7 +34,7 @@
           <md-checkbox 
             v-model="pm.initialTextSent" 
             :value="true"
-            @change="emitChange('initialTextSent', $event)"
+            v-on:change="emitChange('initialTextSent', $event)"
           >Text Sent?</md-checkbox>
         </div>
         
@@ -42,7 +42,7 @@
         <md-field>
           <md-select 
             v-model="pm.initialTextResponse"
-            @md-selected="emitChange('initialTextResponse', $event)"
+            v-on:md-selected="emitChange('initialTextResponse', $event)"
           >
             <md-option 
               v-for="response in presets.initialTextResponses" 
@@ -64,12 +64,12 @@
         <md-radio 
           v-model="pm.callMade" 
           value="Yup!"
-          @change="emitChange('callMade', $event)"
+          v-on:change="emitChange('callMade', $event)"
         >Yup!</md-radio>
         <md-radio 
           v-model="pm.callMade" 
           value="No Answer/Left Message"
-          @change="emitChange('callMade', $event)"
+          v-on:change="emitChange('callMade', $event)"
         >No Answer/Left Message</md-radio>
       </md-card-content>
       
@@ -95,7 +95,7 @@
           <md-input 
             id="pronoun" 
             v-model="pm.pronoun"
-            @keyup="emitChange('pronoun', $event.target.value)"
+            v-on:keyup="emitChange('pronoun', $event.target.value)"
           ></md-input>
         </md-field>
         <md-field>
@@ -103,7 +103,7 @@
           <md-input 
             id="occupation" 
             v-model="pm.occupation"
-            @keyup="emitChange('occupation', $event.target.value)"
+            v-on:keyup="emitChange('occupation', $event.target.value)"
           ></md-input>
         </md-field>
       </md-card-content>
@@ -122,7 +122,7 @@
           :value="interest" 
           v-model="pm.interests"  
           name="interests"
-          @change="emitChange('interests', $event)"
+          v-on:change="emitChange('interests', $event)"
         >{{ interest }}</md-checkbox>
       </md-card-content>
       
@@ -139,7 +139,7 @@
           <md-textarea 
             id="skills" 
             v-model="pm.skills"
-            @keyup="emitChange('skills', $event.target.value)"
+            v-on:keyup="emitChange('skills', $event.target.value)"
           ></md-textarea>   
         </md-field>
       </md-card-content>
@@ -170,7 +170,10 @@
         </div>
         <div class="response_text">Program Member Response:</div>
         <md-field>
-          <md-select v-model="pm.meetupScheduled" @md-selected="emitChange('meetupScheduled', $event)">
+          <md-select 
+            v-model="pm.meetupScheduled" 
+            v-on:md-selected="emitChange('meetupScheduled', $event)"
+          >
             <md-option v-for="opt in presets.meetingScheduledResponses" :key="opt" :value="opt">{{ opt }}</md-option>
           </md-select>
         </md-field>
@@ -179,7 +182,7 @@
           <md-input 
             v-model="pm.meetupEvent" 
             placeholder='Enter Meetup Event'
-            @keyup="emitChange('meetupEvent', $event.target.value)"
+            v-on:keyup="emitChange('meetupEvent', $event.target.value)"
           ></md-input>
         </md-field>
         <div class="speech-bubble">"Bye, and thanks for your time!"</div>
@@ -198,7 +201,7 @@
         <md-checkbox 
           v-model="pm.followupTextSent" 
           :value="true"
-          @change="emitChange('followupTextSent', $event)"  
+          v-on:change="emitChange('followupTextSent', $event)"  
         >Text Sent?</md-checkbox>
       </md-card-content>
     </md-card>
@@ -222,17 +225,17 @@
         <md-checkbox 
           v-model="pm.attendedMeetup" 
           :value="true"
-          @change="emitChange('attendedMeetup', $event)"  
+          v-on:change="emitChange('attendedMeetup', $event)"  
         >Attended General or Social</md-checkbox>
         <md-checkbox 
           v-model="pm.metMobilizerAtEvent" 
           :value="true"
-          @change="emitChange('metMobilizerAtEvent', $event)"
+          v-on:change="emitChange('metMobilizerAtEvent', $event)"
         >Met <b>{{ pm.name}}</b> At Event</md-checkbox>
         <md-checkbox 
           v-model="pm.addToSlack" 
           :value="true"
-          @change="emitChange('addToSlack', $event)"
+          v-on:change="emitChange('addToSlack', $event)"
         >Add <b>{{ pm.name}}</b> to Slack</md-checkbox>
       </md-card-content>
     </md-card>
@@ -249,7 +252,7 @@
           id="mark_as_done" 
           class="md-raised"
           v-model="pm.markedAsDone"
-          @change="emitChange('markedAsDone', $event)" 
+          v-on:change="emitChange('markedAsDone', $event)" 
         >
           <span v-if="!pm.markedAsDone">Mark as Done</span>
           <span v-if="pm.markedAsDone">Marked Done</span>
@@ -267,7 +270,7 @@
           v-model="pm.sketch" 
           :value="true" 
           class="md-accent"
-          @change="emitChange('sketch', $event)"
+          v-on:change="emitChange('sketch', $event)"
         ><b>Mark as Sketch</b></md-checkbox>
       </md-card-content>
     </md-card>

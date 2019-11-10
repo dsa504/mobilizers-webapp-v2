@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace MobilizerApp.Web.Features.Intake {
     public class MobilizeeViewModel {
@@ -8,7 +9,7 @@ namespace MobilizerApp.Web.Features.Intake {
         public string LastName {get;set;}
         public string Email {get;set;}
         public string Pronouns {get;set;}
-        public Datetime AssignedDate {get;set;}
+        public DateTime AssignedDate {get;set;}
         public bool Done {get;set;}
         public bool InitialTextSent {get;set;}
         public string InitialTextResponse {get;set;}
