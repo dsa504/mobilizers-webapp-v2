@@ -1,10 +1,10 @@
-<script>
-(function(){
+import Vue from "vue";
+
 
 //
 // Field options
 //
-var programsAndCommittees = [
+const programsAndCommittees = [
   "Communications",
   "Direct Service/Brake Lights",
   "Healthcare For All",
@@ -18,13 +18,13 @@ var programsAndCommittees = [
   "Other",
 ];
 
-var initialTextResponses = [
+const initialTextResponses = [
   "Call Scheduled",
   "Left Town / Not Interested",
   "No Reply",
 ];
 
-var meetingScheduledResponses = [
+const meetingScheduledResponses = [
   "Meetup Scheduled",
   "Can't/May Attend Later Events",
   "Not Interested",
@@ -54,7 +54,7 @@ function debounce(func, wait, immediate) {
 // Vue
 // *********
 Vue.use(VueMaterial.default);
-window.app = new Vue({
+const app = new Vue({
   el: '#app',
   components: {
     "login-dialog": window.vueComponents.loginDialog,
@@ -74,7 +74,7 @@ window.app = new Vue({
     },
   },
   computed: {
-    selectedProgramMember: function() {
+    selectedProgramMember() {
       if (!this.programMembers.length) return null;
 
       var spmId = this.selectedProgramMemberId;
@@ -85,17 +85,15 @@ window.app = new Vue({
   },
   watch: {},
   methods: {
-    onLoginSuccess: function() {
+    onLoginSuccess() {
       this.showLogin = false;
       this.getProgramMembers();
     },
-    getProgramMembers: function() {
+    getProgramMembers() {
       var app = this;
 
       google.script.run
-        .withSuccessHandler(function(data) {
-          app.programMembers = data;
-        })
+        .withSuccessHandler((data) => app.programMembers = data)
         .getProgramMembers();
     },
     updateProgramMember: debounce(function(update) {
@@ -110,16 +108,13 @@ window.app = new Vue({
          .updateProgramMember(this.selectedProgramMember);
 
     }, 500),
-    onProgramMemberSelect: function (programMemberId) {
+    onProgramMemberSelect(programMemberId) {
       this.selectedProgramMemberId = programMemberId;
     },
-    onMobilizerChange: function() {
+    onMobilizerChange() {
       this.selectedProgramMemberId = -1;
     },
   }
 });
 
-})();
 
-
-</script>

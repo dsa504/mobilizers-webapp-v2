@@ -1,5 +1,4 @@
-AppSettings.gs
-.clasp.json
+AppSettings.congfig
 
 **/obj/
 **/bin
