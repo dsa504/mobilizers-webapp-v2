@@ -13,7 +13,6 @@ namespace MobilizerApp.Web.Features.Home {
                 nameof(DashboardController.Index),
                 nameof(DashboardController)
             );
-
         } 
 
     }
