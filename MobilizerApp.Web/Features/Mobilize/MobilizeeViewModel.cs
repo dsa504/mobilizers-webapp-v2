@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MobilizerApp.Web.Features.Intake {
+namespace MobilizerApp.Web.Features.Mobilize {
     public class MobilizeeViewModel {
         public Guid Id {get;set;}
         public Guid MobilizerId {get;set;}
