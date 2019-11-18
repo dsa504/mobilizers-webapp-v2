@@ -5,7 +5,7 @@ namespace MobilizerApp.Web.Features.Home {
 
     public class HomeController: Controller {
 
-        public IActionResult Index() => View("~/Features/Home/Index");
+        public IActionResult Index() => View();
 
         public IActionResult Login() {
 

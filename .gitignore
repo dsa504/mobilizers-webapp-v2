@@ -1,5 +1,7 @@
 AppSettings.congfig
 
+node_modules
+
 **/obj/
 **/bin
 **/packages
