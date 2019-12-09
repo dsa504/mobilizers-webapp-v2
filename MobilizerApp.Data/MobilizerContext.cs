@@ -1,15 +1,20 @@
+using System;
 using Microsoft.EntityFrameworkCore;
 using MobilizerApp.Data.Models;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 namespace MobilizerApp.Data {
     
     public class MobilizerContext : DbContext {
 
         public DbSet<Mobilizer> Mobilizers {get;set;}
-        public DbSet<Mobilizee> Mobilizees {get;set;}
+        public DbSet<Respondent> Mobilizees {get;set;}
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
-            optionsBuilder.UseMySQL("server=localhost;database=MobilizerApp;user=user;password=password;");
+            optionsBuilder.UseMySql("server=localhost;database=MobilizerApp;user=mobilizerapp;password=dsaneworleans;", mySqlOptions => {
+                mySqlOptions.ServerVersion(new Version(5, 7, 17), ServerType.MySql);
+            });
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
@@ -19,11 +24,8 @@ namespace MobilizerApp.Data {
                 entity.HasKey(e => e.ID);
             });
 
-            modelBuilder.Entity<Mobilizee>(entity => {
+            modelBuilder.Entity<Respondent>(entity => {
                 entity.HasKey(e => e.Id);
-
-                entity.HasOne(e => e.Mobilizer)
-                    .WithMany(m => m.Mobilizees);
             });
         }
 
