@@ -6,6 +6,7 @@
 
 
   <ItemGroup>
+    <ProjectReference Include="..\MobilizerApp.Data\MobilizerApp.Data.csproj" />
   </ItemGroup>
 
 
