@@ -9,17 +9,43 @@ using MobilizerApp.Data;
 namespace MobilizerApp.Data.Migrations
 {
     [DbContext(typeof(MobilizerContext))]
-    [Migration("20191119035019_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20191210024353_Initial_Migration")]
+    partial class Initial_Migration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.0.0")
+                .HasAnnotation("ProductVersion", "3.1.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            modelBuilder.Entity("MobilizerApp.Data.Models.Mobilizer", b =>
+            modelBuilder.Entity("MobilizerApp.Data.Models.Respondent", b =>
+                {
+                    b.Property<Guid>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<bool>("IsSketchy")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("Pronouns")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Respondents");
+                });
+
+            modelBuilder.Entity("MobilizerApp.Data.Models.User", b =>
                 {
                     b.Property<Guid>("ID")
                         .ValueGeneratedOnAdd()
@@ -36,45 +62,7 @@ namespace MobilizerApp.Data.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("Mobilizers");
-                });
-
-            modelBuilder.Entity("MobilizerApp.Data.Models.Respondent", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.Property<string>("FirstName")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.Property<bool>("IsSketchy")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("LastName")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.Property<Guid?>("MobilizerID")
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("Pronouns")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MobilizerID");
-
-                    b.ToTable("Mobilizees");
-                });
-
-            modelBuilder.Entity("MobilizerApp.Data.Models.Respondent", b =>
-                {
-                    b.HasOne("MobilizerApp.Data.Models.Mobilizer", "Mobilizer")
-                        .WithMany()
-                        .HasForeignKey("MobilizerID");
+                    b.ToTable("Users");
                 });
 #pragma warning restore 612, 618
         }

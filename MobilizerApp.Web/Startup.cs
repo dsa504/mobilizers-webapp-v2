@@ -25,6 +25,15 @@ namespace MobilizerApp.Web
         {
             services.AddControllersWithViews();
 
+            services.AddAuthentication()
+                .AddGoogle(options => 
+                {
+                    var googleAuthNSection = Configuration.GetSection("Authentication:Google");
+
+                    options.ClientId = googleAuthNSection["ClientId"];
+                    options.ClientSecret = googleAuthNSection["ClientSecret"];
+                });
+
             services.AddMvc().AddFeatureFolders();
         }
 
@@ -45,6 +54,8 @@ namespace MobilizerApp.Web
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            // set up cookie auth.
 
             app.UseAuthorization();
 
